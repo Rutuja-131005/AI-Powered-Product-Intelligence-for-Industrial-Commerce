@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Console | AI Product Intelligence</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+    
+    <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body class="bg-surface font-body-md text-on-surface">
+
+    <div class="app-layout">
+
+        <!-- ================= Fixed Sidebar ================= -->
+        <aside class="app-sidebar">
+            <div class="brand-container">
+                <div class="brand-badge-circle"></div>
+                <div class="brand-details">
+                    <h1 class="brand-title">Console</h1>
+                    <span class="brand-tag">Product Intelligence</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="sidebar-nav">
+                <button class="nav-link active" id="nav-btn-input" onclick="switchNavTab('input')">
+                    <span class="material-symbols-outlined nav-icon">input</span>
+                    <span class="nav-label">Product Input</span>
+                </button>
+                <button class="nav-link" id="nav-btn-dashboard" onclick="switchNavTab('dashboard')">
+                    <span class="material-symbols-outlined nav-icon">analytics</span>
+                    <span class="nav-label">Batch Telemetry</span>
+                </button>
+                <button class="nav-link" id="nav-btn-sheets" onclick="switchNavTab('sheets')">
+                    <span class="material-symbols-outlined nav-icon">database</span>
+                    <span class="nav-label">Database Repository</span>
+                    <span class="nav-badge success-badge">ACTIVE</span>
+                </button>
+                <button class="nav-link" id="nav-btn-chat" onclick="switchNavTab('chat')">
+                    <span class="material-symbols-outlined nav-icon">forum</span>
+                    <span class="nav-label">Ask Product AI</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="system-status-indicator">
+                    <div class="status-dot online"></div>
+                    <div class="status-info">
+                        <span class="status-label">Database Connected</span>
+                        <span class="status-sub">Dataset Repository Active</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ================= Main Content Container ================= -->
+        <div class="main-content-wrapper">
+
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-breadcrumb">
+                    <span class="crumb-root">PRODUCT INTELLIGENCE</span>
+                    <span class="crumb-separator">/</span>
+                    <span class="crumb-active" id="current-section-title">Product Input Hub</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline btn-sm" onclick="switchNavTab('sheets')">
+                        <span class="material-symbols-outlined text-[16px]">database</span>
+                        Database Repository
+                    </button>
+                </div>
+            </header>
+
+            <!-- ================= VIEW 1: PRODUCT INPUT & MULTI-WEBSITE RESEARCH (PRIMARY VIEW) ================= -->
+            <main class="content-view active" id="view-input">
+                <header class="view-header">
+                    <div>
+                        <h1 class="view-title">Product Input & Deep Web Research</h1>
+                        <p class="view-subtitle">Input any Product Image, Technical PDF, or Part Number. The system researches multiple websites and automatically enriches attributes into the master database.</p>
+                    </div>
+                </header>
+
+                <!-- Single Query Deep Research Bar -->
+                <div class="search-research-card">
+                    <span class="input-card-tag">INSTANT MULTI-WEBSITE RESEARCH</span>
+                    <div class="search-bar-row">
+                        <span class="material-symbols-outlined text-outline text-[22px]">search</span>
+                        <input type="text" id="quick-research-input" placeholder="Enter Part Number, Product Description, or Model (e.g., 3MABR-7100075678, Diablo Cut-Off Disc, Dewalt DCF860B)..." onkeydown="if(event.key==='Enter') executeQuickResearch()"/>
+                        <button class="btn btn-primary" onclick="executeQuickResearch()">
+                            <span class="material-symbols-outlined text-[18px]">travel_explore</span>
+                            RESEARCH WEBSITES
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Multimodal Dropzones (Image, PDF, Bulk File) -->
+                <div class="upload-grid-layout" style="margin-top: 24px;">
+                    <!-- Image Ingestion Dropzone -->
+                    <div class="upload-card" onclick="triggerInput('image-file-input')">
+                        <span class="material-symbols-outlined upload-card-icon">photo_camera</span>
+                        <h3 class="upload-card-title">Upload Product Image</h3>
+                        <p class="upload-card-desc">Visual OCR, label identification, multi-website research & auto-save to database repository.</p>
+                        <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)"/>
+                        <button class="btn btn-primary btn-sm">SELECT IMAGE</button>
+                    </div>
+
+                    <!-- PDF Ingestion Dropzone -->
+                    <div class="upload-card" onclick="triggerInput('pdf-file-input')">
+                        <span class="material-symbols-outlined upload-card-icon">picture_as_pdf</span>
+                        <h3 class="upload-card-title">Upload Spec PDF</h3>
+                        <p class="upload-card-desc">Parse technical datasheets, CAD drawings, manuals, and push attributes to database repository.</p>
+                        <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;" onchange="handlePdfUpload(event)"/>
+                        <button class="btn btn-secondary btn-sm">SELECT PDF</button>
+                    </div>
+
+                    <!-- Bulk Dataset Ingestion Dropzone -->
+                    <div class="upload-card" onclick="triggerInput('csv-file-input')">
+                        <span class="material-symbols-outlined upload-card-icon">table_view</span>
+                        <h3 class="upload-card-title">Upload Batch Catalog</h3>
+                        <p class="upload-card-desc">Bulk process sparse industrial items and populate backend database silently.</p>
+                        <input type="file" id="csv-file-input" accept=".csv,.xlsx,.xls" style="display: none;" onchange="handleCsvUpload(event)"/>
+                        <button class="btn btn-outline btn-sm">SELECT DATASET</button>
+                    </div>
+                </div>
+
+                <!-- Live Research Results & Multi-Website Links Card -->
+                <div class="research-results-container" id="research-results-box" style="display: none; margin-top: 28px;">
+                    <div class="results-header-bar">
+                        <div>
+                            <span class="badge-pill success">RESEARCH COMPLETE</span>
+                            <h2 class="font-headline-sm" id="res-product-title" style="margin-top: 6px;">Product Identity</h2>
+                            <p class="text-muted" id="res-product-sub"></p>
+                        </div>
+                        <div class="database-synced-badge">
+                            <span class="material-symbols-outlined text-success">check_circle</span>
+                            <span>Saved to Backend Database Repository</span>
+                        </div>
+                    </div>
+
+                    <!-- Discovered Multi-Website Research Links Grid -->
+                    <div class="research-links-section">
+                        <h3 class="section-heading-sm">DISCOVERED MULTI-WEBSITE RESEARCH SOURCES:</h3>
+                        <div class="links-cards-grid" id="res-links-grid">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- ================= VIEW 2: BATCH TELEMETRY (DASHBOARD) ================= -->
+            <main class="content-view" id="view-dashboard">
+                <header class="view-header">
+                    <div>
+                        <h1 class="view-title">Batch Telemetry</h1>
+                        <p class="view-subtitle">High-level processing metrics and background pipeline monitoring.</p>
+                    </div>
+                    <div class="view-actions">
+                        <button class="btn btn-outline" onclick="exportCatalog('csv')">DOWNLOAD 252 CSV</button>
+                        <button class="btn btn-primary" onclick="exportCatalog('xlsx')">DOWNLOAD 252 XLSX</button>
+                    </div>
+                </header>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <span class="metric-label">TOTAL ITEMS INGESTED</span>
+                        <div class="metric-value-row">
+                            <span class="metric-number" id="kpi-total-processed">241</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">RESEARCH SUCCESS RATE</span>
+                        <div class="metric-value-row">
+                            <span class="metric-number" id="kpi-success-rate">99.2%</span>
+                        </div>
+                        <div class="mini-progress-track">
+                            <div class="mini-progress-fill bg-success" style="width: 99.2%"></div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">DATABASE SYNC STATUS</span>
+                        <div class="metric-value-row">
+                            <span class="metric-number text-success">Active</span>
+                            <span class="pulse-dot"></span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">TOTAL SCHEMA FIELDS</span>
+                        <div class="metric-value-row">
+                            <span class="metric-number">252</span>
+                            <span class="metric-sub">cols</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Processing Pipeline Funnel -->
+                <div class="pipeline-card">
+                    <h3 class="pipeline-title" style="margin-bottom: 20px;">Active Enrichment Funnel</h3>
+                    <div class="pipeline-stepper">
+                        <div class="step-item completed">
+                            <div class="step-circle"><span class="step-dot"></span></div>
+                            <div class="step-body">
+                                <h4 class="step-title">1. Multimodal Ingestion</h4>
+                                <p class="step-desc">Images, PDFs, or CSV rows ingested & identity resolved from dataset.csv.</p>
+                            </div>
+                        </div>
+                        <div class="step-item completed">
+                            <div class="step-circle"><span class="step-dot"></span></div>
+                            <div class="step-body">
+                                <h4 class="step-title">2. Multi-Website Research</h4>
+                                <p class="step-desc">Manufacturer portals, datasheets, CAD, manuals, and SDS links queried.</p>
+                            </div>
+                        </div>
+                        <div class="step-item completed">
+                            <div class="step-circle"><span class="step-dot"></span></div>
+                            <div class="step-body">
+                                <h4 class="step-title">3. 252-Column Strict Normalization</h4>
+                                <p class="step-desc">50 attribute triplets and ANSI/NIST units generated and saved to backend database.</p>
+                            </div>
+                        </div>
+                        <div class="step-item completed">
+                            <div class="step-circle"><span class="step-dot"></span></div>
+                            <div class="step-body">
+                                <h4 class="step-title">4. Database Repository Synchronization</h4>
+                                <p class="step-desc">Analysis links and catalog attributes synchronized and persisted.</p>
+                                <span class="step-status-tag success">SYNCHRONIZED</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- ================= VIEW 3: DATABASE REPOSITORY & EXPORT SINK ================= -->
+            <main class="content-view" id="view-sheets">
+                <header class="view-header">
+                    <div>
+                        <h1 class="view-title">Database Repository & Export Hub</h1>
+                        <p class="view-subtitle">Live catalog storage, batch synchronization & master export management.</p>
+                    </div>
+                    <div class="view-actions">
+                        <button class="btn btn-outline" onclick="exportCatalog('csv')">
+                            <span class="material-symbols-outlined text-[18px]">download</span>
+                            DOWNLOAD CSV
+                        </button>
+                        <button class="btn btn-primary" onclick="exportCatalog('xlsx')">
+                            <span class="material-symbols-outlined text-[18px]">download</span>
+                            DOWNLOAD XLSX
+                        </button>
+                    </div>
+                </header>
+
+                <div class="sheets-integration-card">
+                    <div class="sheets-info-grid">
+                        <div class="info-item">
+                            <span class="info-label">DATASET SOURCE</span>
+                            <span class="info-val font-mono">dataset.csv (241 Industrial Products Loaded)</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">OUTPUT CONTRACT SCHEMA</span>
+                            <span class="info-val font-mono">252 Contractual Headers</span>
+                        </div>
+                        <div class="info-item" style="grid-column: 1 / -1;">
+                            <span class="info-label">STORAGE STATUS</span>
+                            <span class="info-val" style="color: var(--success); font-weight: 600;">Active & Synced to Internal Database Repository</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="syncAllToDatabase()">
+                            <span class="material-symbols-outlined text-[16px]">sync</span>
+                            SYNCHRONIZE ALL CATALOG RESEARCH DATA NOW
+                        </button>
+                    </div>
+                </div>
+            </main>
+
+            <!-- ================= VIEW 4: ASK PRODUCT AI ================= -->
+            <main class="content-view" id="view-chat">
+                <header class="view-header">
+                    <div>
+                        <h1 class="view-title">Ask Product AI</h1>
+                        <p class="view-subtitle">Ground-truth conversational RAG answering questions against researched datasheets, manuals, and catalog records.</p>
+                    </div>
+                </header>
+
+                <div class="chat-wrapper">
+                    <div class="chat-messages-container" id="chat-messages-box">
+                        <div class="chat-message bot">
+                            <div class="chat-avatar">AI</div>
+                            <div class="chat-content">
+                                <p>Hello! I am your Industrial Intelligence Assistant. Ask any question regarding researched part numbers, multi-website specs, compatibility, or catalog records.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-bar">
+                        <input type="text" id="rag-input-text" placeholder="e.g., What are the voltage and dimension specifications for Diablo cut-off discs or Milwaukee accessories?" onkeydown="if(event.key==='Enter') sendChatQuery()"/>
+                        <button class="btn btn-primary" onclick="sendChatQuery()">
+                            <span class="material-symbols-outlined">send</span>
+                        </button>
+                    </div>
+                </div>
+            </main>
+
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
