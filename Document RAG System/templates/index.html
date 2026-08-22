@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Product Intelligence & Document RAG Platform</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css?v=2.0">
+</head>
+
+<body class="dark-theme">
+    <!-- Main App Container -->
+    <div class="app-layout">
+        <!-- Top Navigation Bar -->
+        <header class="top-nav">
+            <div class="nav-brand">
+                <div class="brand-icon">⚡</div>
+                <div class="brand-text">
+                    <h2>CATALOG<span class="gradient-text">IQ</span></h2>
+                    <span class="sub-brand">AI Industrial Product Intelligence</span>
+                </div>
+            </div>
+
+            <!-- Main Tab Switcher -->
+            <div class="nav-tabs">
+                <button id="tab-btn-intelligence" class="nav-tab active" onclick="switchView('intelligence')">
+                    <span class="tab-icon">⚙️</span>
+                    <span>Product Intelligence Studio</span>
+                    <span class="badge-pill">252 Cols</span>
+                </button>
+                <button id="tab-btn-rag" class="nav-tab" onclick="switchView('rag')">
+                    <span class="tab-icon">📚</span>
+                    <span>Document RAG Assistant</span>
+                </button>
+            </div>
+
+            <div class="nav-status">
+                <div class="pulse-indicator"></div>
+                <span id="global-status-text">Engine Online</span>
+            </div>
+        </header>
+
+        <!-- VIEW 1: Product Intelligence Studio -->
+        <main id="view-intelligence" class="view-panel active">
+            <div class="studio-container">
+                
+                <!-- Section 1: Upload & Action Hub -->
+                <section class="action-hub-card">
+                    <div class="hub-header">
+                        <div>
+                            <h3>📥 Ingest Sparse Industrial Records</h3>
+                            <p class="text-muted">Upload 6-column sparse catalog (CSV/XLSX) to enrich into 252 commerce-ready fields with verified provenance.</p>
+                        </div>
+                        <div class="demo-buttons">
+                            <button class="btn btn-secondary" onclick="loadSampleDemo(100)">
+                                <span>⚡</span> Load 100 Sample Parts
+                            </button>
+                            <button class="btn btn-primary" onclick="loadSampleDemo(1000)">
+                                <span>🚀</span> Load 1,000 Evaluation Set
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="drop-zone-container" id="catalog-drop-zone">
+                        <input type="file" id="catalog-file-input" accept=".csv,.xlsx,.xls,.txt" hidden>
+                        <div class="drop-zone-content">
+                            <div class="upload-art">📄</div>
+                            <h4>Drag & drop product CSV / XLSX here</h4>
+                            <p class="text-muted">Accepts <code>Mfg_Part_Num</code>, <code>Part_Desc</code>, <code>E1_Brand</code>, <code>Unilog_Brand</code>, <code>DIB_Brand</code>, <code>Part_Manuf</code></p>
+                            <button class="btn btn-outline" onclick="document.getElementById('catalog-file-input').click()">Browse Local Files</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Active Job Progress & KPIs -->
+                <section id="job-progress-panel" class="job-progress-panel" style="display: none;">
+                    <div class="job-header">
+                        <div class="job-info">
+                            <span class="status-chip" id="job-status-chip">PROCESSING</span>
+                            <h4 id="job-filename">sample_industrial_input.csv</h4>
+                            <span class="job-id-text" id="job-id-display">Job: #---</span>
+                        </div>
+                        <div class="job-actions">
+                            <button id="btn-export-csv" class="btn btn-success" onclick="exportCatalog('csv')" disabled>
+                                <span>📥</span> Download 252-Col CSV
+                            </button>
+                            <button id="btn-export-xlsx" class="btn btn-accent" onclick="exportCatalog('xlsx')" disabled>
+                                <span>📊</span> Download 252-Col XLSX
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-info">
+                            <span>Processing Pipeline (<span id="progress-percent">0%</span>)</span>
+                            <span><span id="processed-count">0</span> / <span id="total-count">0</span> rows</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- KPI Grid -->
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-title">Total Products</div>
+                            <div class="kpi-value" id="kpi-total">0</div>
+                            <div class="kpi-sub">100% rows preserved</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Schema Compliance</div>
+                            <div class="kpi-value highlight-cyan">252 / 252</div>
+                            <div class="kpi-sub">Exact fixed headers</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Avg Confidence Score</div>
+                            <div class="kpi-value highlight-green" id="kpi-confidence">0.0%</div>
+                            <div class="kpi-sub">Evidence-grounded</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Verified Records</div>
+                            <div class="kpi-value" id="kpi-verified">0</div>
+                            <div class="kpi-sub">High evidence support</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Needs Review</div>
+                            <div class="kpi-value highlight-yellow" id="kpi-review">0</div>
+                            <div class="kpi-sub">Partial / low confidence</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Enriched Catalog Studio & Review Table -->
+                <section id="catalog-table-section" class="catalog-table-section" style="display: none;">
+                    <div class="table-controls">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="catalog-search" placeholder="Search Part #, Description, Brand..." oninput="onCatalogFilterChange()">
+                        </div>
+
+                        <div class="filter-group">
+                            <select id="brand-filter" onchange="onCatalogFilterChange()">
+                                <option value="ALL">All Brands (Consensus)</option>
+                                <option value="Allen-Bradley">Allen-Bradley</option>
+                                <option value="Schneider Electric">Schneider Electric</option>
+                                <option value="Square D">Square D</option>
+                                <option value="Siemens">Siemens</option>
+                                <option value="Eaton">Eaton</option>
+                                <option value="ABB">ABB</option>
+                                <option value="Honeywell">Honeywell</option>
+                                <option value="Parker Hannifin">Parker Hannifin</option>
+                            </select>
+
+                            <select id="status-filter" onchange="onCatalogFilterChange()">
+                                <option value="ALL">All Validation Statuses</option>
+                                <option value="VERIFIED">Verified (>= 85%)</option>
+                                <option value="PARTIAL">Partial (70-84%)</option>
+                                <option value="NEEDS_REVIEW">Needs Review (< 70%)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Catalog Data Table -->
+                    <div class="table-wrapper">
+                        <table class="catalog-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Original Part #</th>
+                                    <th>Resolved Brand</th>
+                                    <th>Commerce Product Title</th>
+                                    <th>Primary Category</th>
+                                    <th>Voltage / Current</th>
+                                    <th>Confidence</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="catalog-table-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination-footer">
+                        <span id="pagination-info" class="text-muted">Showing 0 to 0 of 0 records</span>
+                        <div class="pagination-controls">
+                            <button id="btn-prev-page" class="btn btn-sm btn-secondary" onclick="changeCatalogPage(-1)" disabled>Previous</button>
+                            <span id="current-page-num" class="page-badge">1</span>
+                            <button id="btn-next-page" class="btn btn-sm btn-secondary" onclick="changeCatalogPage(1)" disabled>Next</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- VIEW 2: Document RAG Assistant -->
+        <main id="view-rag" class="view-panel">
+            <div class="rag-layout">
+                <!-- RAG Sidebar -->
+                <aside class="rag-sidebar">
+                    <div class="sidebar-block">
+                        <h4>📄 Ingest Documentation</h4>
+                        <p class="text-muted">Upload product spec sheets, manuals, or PDF brochures into vector store.</p>
+                        <div class="rag-upload-box" id="rag-drop-zone">
+                            <input type="file" id="rag-file-input" accept=".txt,.pdf,.docx" hidden>
+                            <button class="btn btn-sm btn-outline w-100" onclick="document.getElementById('rag-file-input').click()">Upload Manual / Datasheet</button>
+                            <div id="rag-upload-msg" class="status-mini-msg"></div>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-block">
+                        <h4>📊 Vector Index Stats</h4>
+                        <div class="stat-badge-row">
+                            <span>ChromaDB Chunks:</span>
+                            <span id="rag-chunk-count" class="badge-bold">0</span>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-block flex-fill">
+                        <h4>📜 Chat History</h4>
+                        <div id="rag-history-list" class="history-scroll-box"></div>
+                    </div>
+
+                    <div class="sidebar-block">
+                        <h4>📂 Ingested Corpus Files</h4>
+                        <div id="rag-files-list" class="files-scroll-box"></div>
+                    </div>
+                </aside>
+
+                <!-- RAG Chat Main -->
+                <section class="rag-chat-main">
+                    <div class="chat-header-bar">
+                        <h3>Ask Grounded Technical Questions</h3>
+                        <button class="btn btn-sm btn-secondary" onclick="startNewChat()">+ New Chat</button>
+                    </div>
+
+                    <div id="rag-chat-messages" class="rag-messages-area">
+                        <div class="empty-welcome">
+                            <div class="welcome-icon">💬</div>
+                            <h3>Product Knowledge Assistant</h3>
+                            <p class="text-muted">Ask questions about spec sheets, catalogs, wiring diagrams, and cross-references grounded in ChromaDB embeddings.</p>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-bar">
+                        <textarea id="rag-query-input" placeholder="Ask about technical specifications, ratings, or part numbers..." rows="1"></textarea>
+                        <button id="rag-send-btn" class="btn btn-primary" onclick="sendRagMessage()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Inspection, Provenance & Review Modal -->
+    <div id="product-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <span class="status-chip" id="modal-status-chip">VERIFIED</span>
+                    <h3 id="modal-product-title">Product Inspection & Provenance</h3>
+                    <span class="text-muted" id="modal-product-sub">Mfg Part Number: ---</span>
+                </div>
+                <button class="btn-close" onclick="closeProductModal()">✕</button>
+            </div>
+
+            <!-- Modal Nav Tabs -->
+            <div class="modal-tabs">
+                <button class="modal-tab active" onclick="switchModalTab('tab-overview')">1. Master Specs & Copy</button>
+                <button class="modal-tab" onclick="switchModalTab('tab-triplets')">2. 50 Attribute Triplets Matrix</button>
+                <button class="modal-tab" onclick="switchModalTab('tab-provenance')">3. Evidence & Provenance Trail</button>
+                <button class="modal-tab" onclick="switchModalTab('tab-raw')">4. Source Input Preservation</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Tab 1: Overview, Specs & Copy -->
+                <div id="tab-overview" class="modal-tab-content active">
+                    <div class="spec-grid">
+                        <div class="spec-card">
+                            <h4>Core Identity</h4>
+                            <div class="spec-row"><span>Canonical Part #:</span> <strong id="spec-canonical-pn">---</strong></div>
+                            <div class="spec-row"><span>Resolved Brand:</span> <strong id="spec-brand" class="highlight-cyan">---</strong></div>
+                            <div class="spec-row"><span>Category Path:</span> <span id="spec-category">---</span></div>
+                            <div class="spec-row"><span>UNSPSC Code:</span> <span id="spec-unspsc">---</span></div>
+                            <div class="spec-row"><span>Lifecycle Status:</span> <span id="spec-lifecycle">Active</span></div>
+                        </div>
+
+                        <div class="spec-card">
+                            <h4>Ratings & Dimensions</h4>
+                            <div class="spec-row"><span>Voltage Rating:</span> <strong id="spec-voltage">---</strong></div>
+                            <div class="spec-row"><span>Current Rating:</span> <strong id="spec-current">---</strong></div>
+                            <div class="spec-row"><span>Mounting Type:</span> <span id="spec-mounting">---</span></div>
+                            <div class="spec-row"><span>Dimensions:</span> <span id="spec-dims">---</span></div>
+                            <div class="spec-row"><span>Weight:</span> <span id="spec-weight">---</span></div>
+                        </div>
+                    </div>
+
+                    <div class="content-block">
+                        <h4>Generated Commerce Title</h4>
+                        <div class="input-inline-edit">
+                            <input type="text" id="edit-product-title" class="form-input">
+                            <button class="btn btn-sm btn-secondary" onclick="saveEditedField('Product_Title', 'edit-product-title')">Save</button>
+                        </div>
+                    </div>
+
+                    <div class="content-block">
+                        <h4>Short Description</h4>
+                        <div class="input-inline-edit">
+                            <textarea id="edit-short-desc" class="form-input" rows="2"></textarea>
+                            <button class="btn btn-sm btn-secondary" onclick="saveEditedField('Short_Description', 'edit-short-desc')">Save</button>
+                        </div>
+                    </div>
+
+                    <div class="content-block">
+                        <h4>10 Feature Bullet Points (Grounded)</h4>
+                        <div id="modal-feature-bullets" class="bullet-list-box"></div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: 50 Attribute Triplets -->
+                <div id="tab-triplets" class="modal-tab-content">
+                    <p class="text-muted">Populated up to 50 Attribute Name, Value, and Standard UOM triplets adhering strictly to the 252-column schema contract.</p>
+                    <div class="triplets-matrix-wrapper">
+                        <table class="triplets-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Attribute Name</th>
+                                    <th>Normalized Value</th>
+                                    <th>Standard UOM</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal-triplets-tbody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Evidence & Provenance Trail -->
+                <div id="tab-provenance" class="modal-tab-content">
+                    <div class="provenance-section">
+                        <h4>Discovered Authoritative Portals & Datasheets</h4>
+                        <div id="modal-discovered-links" class="links-chip-grid"></div>
+                    </div>
+
+                    <div class="provenance-section mt-4">
+                        <h4>ChromaDB Grounded Context & Citations</h4>
+                        <div id="modal-rag-evidence-list" class="evidence-box"></div>
+                    </div>
+
+                    <div class="provenance-section mt-4">
+                        <h4>Field-Level Audit Log (JSON)</h4>
+                        <pre id="modal-provenance-json" class="json-viewer"></pre>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Source Input Preservation -->
+                <div id="tab-raw" class="modal-tab-content">
+                    <p class="text-muted">Original 6-column evaluation input preserved 100% verbatim without modification.</p>
+                    <div class="raw-data-grid" id="modal-raw-inputs-grid">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <div class="review-status-text">
+                    <span>Review State: <strong id="modal-review-status">PENDING</strong></span>
+                </div>
+                <div class="modal-footer-actions">
+                    <button class="btn btn-secondary" onclick="closeProductModal()">Close</button>
+                    <button class="btn btn-success" onclick="approveProductRecord()">✓ Approve Record</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js?v=2.0"></script>
+</body>
+
+</html>

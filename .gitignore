@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+.venv/
+env/
+venv/
+
+# Chroma DB / SQLite databases
+chroma_db/
+data/catalog.db
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

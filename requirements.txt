@@ -1,0 +1,15 @@
+streamlit
+chromadb
+sentence-transformers
+google-generativeai
+python-dotenv
+tf-keras
+fastapi
+uvicorn[standard]
+python-multipart
+pypdf
+python-docx
+pandas
+openpyxl
+aiofiles
+requests

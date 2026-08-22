@@ -1,0 +1,23 @@
+[client]
+showErrorDetails = true
+logLevel = "info"
+
+[logger]
+level = "info"
+
+[theme]
+primaryColor = "#00D9FF"
+backgroundColor = "#0E1117"
+secondaryBackgroundColor = "#161B22"
+textColor = "#C9D1D9"
+font = "sans serif"
+
+[browser]
+gatherUsageStats = false
+
+[server]
+port = 8501
+headless = true
+maxUploadSize = 200
+timeoutSeconds = 300
+enableXsrfProtection = true
