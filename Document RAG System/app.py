@@ -1,23 +1,35 @@
-from fastapi import FastAPI, UploadFile, File, Form, BackgroundTasks, Query, Response
+from fastapi import FastAPI, UploadFile, File, Form, BackgroundTasks, Query, Response, Depends, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
+from fastapi.responses import JSONResponse, FileResponse
+from sqlalchemy.orm import Session
 import shutil
 import os
 import io
+import time
+import uuid
 import pandas as pd
-from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 
 from ingest import ingest_file, get_collection_stats, delete_file_embeddings
 from rag import query_rag
 from history import get_all_chats, get_chat, delete_chat, save_chat
 
+from db.database import get_db, SessionLocal
+from db.models import Job, Product, ProductAttribute, Source, Evidence, ValidationResult, Review, ProductAsset
+from db.schemas import (
+    JobCreateResponse, JobStatusResponse, ReviewAction,
+    ProductIntelligence, ExportValidationResult
+)
+
 from product_intelligence.pipeline import get_pipeline_instance
 from product_intelligence.schema import EXPECTED_OUTPUT_COLUMNS, NUM_OUTPUT_COLUMNS
 from product_intelligence.exporter import export_to_csv_bytes, export_to_xlsx_bytes
 from sample_generator import generate_sample_csv
+from jobs.processor import JobProcessor
+from export.output_schema import FINAL_252_HEADERS
+from export.exporter import export_catalog_to_csv, export_catalog_to_xlsx
 
-app = FastAPI(title="AI-Powered Product Intelligence & Document RAG Platform")
+app = FastAPI(title="AI-Powered Product Intelligence for Industrial Commerce")
 
 os.makedirs("data", exist_ok=True)
 
@@ -28,9 +40,11 @@ pipeline = get_pipeline_instance()
 
 # ----------------- Document RAG Endpoints -----------------
 
-class QueryRequest(BaseModel):
-    query: str
-    history: list[dict] = []
+class QueryRequest(BaseModel := type('QueryRequest', (object,), {
+    '__annotations__': {'query': str, 'history': list[dict]},
+    'history': []
+})):
+    pass
 
 @app.get("/")
 async def read_root():
@@ -46,15 +60,9 @@ async def upload_document(background_tasks: BackgroundTasks, file: UploadFile = 
         with open(file_location, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
-        # Run ingestion in background
         background_tasks.add_task(background_ingest, file_location)
-        
         return JSONResponse(content={"message": f"Upload accepted. Processing {file.filename} in background."}, status_code=200)
-            
     except Exception as e:
-        import traceback
-        traceback.print_exc()
-        print(f"ERROR: Upload failed: {e}")
         return JSONResponse(content={"message": str(e)}, status_code=500)
 
 @app.get("/files")
@@ -62,14 +70,13 @@ async def list_files():
     files = []
     if os.path.exists("data"):
         for f in os.listdir("data"):
-            if os.path.isfile(os.path.join("data", f)) and not f.endswith(".csv"):
+            if os.path.isfile(os.path.join("data", f)) and not f.endswith(".csv") and not f.endswith(".db"):
                  files.append(f)
     return files
 
 @app.delete("/files/{filename}")
 async def delete_file(filename: str):
     file_path = os.path.join("data", filename)
-    
     if os.path.exists(file_path):
         os.remove(file_path)
     else:
@@ -78,12 +85,13 @@ async def delete_file(filename: str):
     success = delete_file_embeddings(filename)
     if success:
         return {"message": f"Deleted {filename}"}
-    else:
-        return JSONResponse(content={"message": "File deleted from disk but failed to remove from DB"}, status_code=500)
+    return JSONResponse(content={"message": "File deleted from disk but failed to remove from DB"}, status_code=500)
 
 @app.post("/query")
-async def query_endpoint(request: QueryRequest):
-    response_data = query_rag(request.query, request.history)
+async def query_endpoint(request: Dict[str, Any]):
+    query_text = request.get("query", "")
+    hist = request.get("history", [])
+    response_data = query_rag(query_text, hist)
     return response_data
 
 @app.get("/status")
@@ -103,91 +111,106 @@ async def get_chat_history(chat_id: str):
     return JSONResponse(content={"message": "Chat not found"}, status_code=404)
 
 @app.delete("/history/{chat_id}")
-async def delete_chat_history(chat_id: str):
+async def delete_chat_history_endpoint(chat_id: str):
     success = delete_chat(chat_id)
     if success:
         return {"message": "Chat deleted"}
     return JSONResponse(content={"message": "Chat not found"}, status_code=404)
 
-class SaveChatRequest(BaseModel):
-    id: str
-    title: str
-    messages: list[dict]
-
 @app.post("/history")
-async def save_chat_history_endpoint(request: SaveChatRequest):
-    save_chat(request.id, request.title, request.messages)
+async def save_chat_history_endpoint(request: Dict[str, Any]):
+    save_chat(request.get("id", ""), request.get("title", ""), request.get("messages", []))
     return {"message": "Chat saved"}
 
 
-# ------------- Product Intelligence REST API Endpoints -------------
+# ----------------- AI Product Intelligence Endpoints (TRD Schema Compliant) -----------------
 
-@app.post("/api/intelligence/upload")
-async def upload_catalog_file(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
-    """Accepts arbitrary CSV or XLSX sparse catalog file and queues enrichment."""
+@app.post("/api/jobs", response_model=JobCreateResponse)
+async def create_job_endpoint(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    """Uploads sparse CSV/XLSX, validates schema, persists job, and triggers enrichment."""
     try:
         content = await file.read()
         filename = file.filename.lower()
-        
+
         if filename.endswith(".csv") or filename.endswith(".txt"):
             df = pd.read_csv(io.BytesIO(content))
         elif filename.endswith(".xlsx") or filename.endswith(".xls"):
             df = pd.read_excel(io.BytesIO(content))
         else:
-            return JSONResponse(status_code=400, content={"error": "Unsupported file format. Please upload CSV or XLSX."})
-        
-        if df.empty:
-            return JSONResponse(status_code=400, content={"error": "Uploaded file is empty."})
-        
+            raise HTTPException(status_code=400, detail="Unsupported format. Please upload CSV or XLSX.")
+
+        is_valid, err_msg = JobProcessor.validate_input_schema(df)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=f"Input schema validation failed: {err_msg}")
+
         job_id = pipeline.create_job(df, filename=file.filename)
         background_tasks.add_task(pipeline.run_batch_job, job_id)
-        
-        return {
-            "message": "File uploaded and batch enrichment job started.",
-            "job_id": job_id,
-            "filename": file.filename,
-            "total_rows": len(df),
-            "expected_columns": NUM_OUTPUT_COLUMNS
-        }
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return JSONResponse(status_code=500, content={"error": f"Failed to parse file: {str(e)}"})
 
-@app.post("/api/intelligence/demo/load")
-async def load_sample_dataset(background_tasks: BackgroundTasks, rows: int = 100):
-    """Loads realistic industrial sample dataset for immediate testing and demo."""
-    try:
-        sample_path = "data/sample_industrial_input.csv"
-        if not os.path.exists(sample_path):
-            generate_sample_csv(sample_path, total_rows=1000)
-            
-        df = pd.read_csv(sample_path)
-        if rows < len(df):
-            df = df.iloc[:rows].copy()
-            
-        job_id = pipeline.create_job(df, filename=f"sample_industrial_{rows}_rows.csv")
-        background_tasks.add_task(pipeline.run_batch_job, job_id)
-        
-        return {
-            "message": f"Loaded {len(df)} sample industrial parts. Enrichment started.",
-            "job_id": job_id,
-            "filename": f"sample_industrial_{rows}_rows.csv",
-            "total_rows": len(df)
-        }
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
+        # Persist in DB
+        db_job = Job(
+            id=job_id,
+            filename=file.filename,
+            total_rows=len(df),
+            status="PROCESSING"
+        )
+        db.add(db_job)
+        db.commit()
 
-@app.get("/api/intelligence/status/{job_id}")
-async def get_job_progress(job_id: str):
-    """Returns real-time progress, processed counts, and quality KPIs."""
+        return JobCreateResponse(
+            job_id=job_id,
+            filename=file.filename,
+            status="PROCESSING",
+            total_rows=len(df),
+            message="Job created and enrichment started successfully."
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/jobs/{job_id}", response_model=JobStatusResponse)
+async def get_job_status_endpoint(job_id: str):
+    """Returns detailed job status, row counts, and progress telemetry."""
     status = pipeline.get_job_status(job_id)
     if not status:
-        return JSONResponse(status_code=404, content={"error": "Job ID not found."})
-    return status
+        raise HTTPException(status_code=404, detail="Job ID not found.")
 
-@app.get("/api/intelligence/products/{job_id}")
-async def get_job_products(
+    return JobStatusResponse(
+        job_id=status["job_id"],
+        filename=status["filename"],
+        status=status["status"],
+        total_rows=status["total_rows"],
+        processed_rows=status["processed_rows"],
+        success_rows=status["verified_count"],
+        review_rows=status["needs_review_count"],
+        failed_rows=status["failed_rows"],
+        progress_percent=status["progress_percent"],
+        elapsed_seconds=status["elapsed_seconds"],
+        error_message=status.get("error")
+    )
+
+@app.post("/api/jobs/{job_id}/start")
+async def start_job_endpoint(job_id: str, background_tasks: BackgroundTasks):
+    job = pipeline.jobs.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    background_tasks.add_task(pipeline.run_batch_job, job_id)
+    return {"message": "Job started", "job_id": job_id}
+
+@app.post("/api/jobs/{job_id}/cancel")
+async def cancel_job_endpoint(job_id: str):
+    job = pipeline.jobs.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    job["status"] = "CANCELLED"
+    return {"message": "Job cancellation requested", "job_id": job_id}
+
+@app.get("/api/jobs/{job_id}/products")
+async def get_job_products_endpoint(
     job_id: str,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
@@ -206,70 +229,155 @@ async def get_job_products(
     )
     return data
 
-@app.get("/api/intelligence/product/{job_id}/{row_idx}")
-async def get_single_product_detail(job_id: str, row_idx: int):
-    """Returns detailed product record with 50 triplets, evidence citations, and provenance."""
-    job = pipeline.jobs.get(job_id)
-    if not job:
-        return JSONResponse(status_code=404, content={"error": "Job not found"})
-    records = job.get("records", [])
-    if row_idx < 0 or row_idx >= len(records):
-        return JSONResponse(status_code=404, content={"error": "Product index out of bounds"})
-    return records[row_idx]
+@app.get("/api/products/{product_id}")
+async def get_single_product_endpoint(product_id: int, job_id: Optional[str] = None):
+    """Returns canonical product object with evidence and validation results."""
+    # Find across jobs or by job_id
+    target_job = pipeline.jobs.get(job_id) if job_id else next(iter(pipeline.jobs.values()), None)
+    if not target_job:
+        raise HTTPException(status_code=404, detail="No active jobs found")
+    records = target_job.get("records", [])
+    if product_id < 0 or product_id >= len(records):
+        raise HTTPException(status_code=404, detail="Product ID out of bounds")
+    return records[product_id]
 
-class FieldUpdateRequest(BaseModel):
-    field_name: str
-    new_value: str
+@app.post("/api/products/{product_id}/reprocess")
+async def reprocess_product_endpoint(product_id: int, job_id: Optional[str] = None):
+    """Re-executes enrichment pipeline on a single product."""
+    target_job = pipeline.jobs.get(job_id) if job_id else next(iter(pipeline.jobs.values()), None)
+    if not target_job or not target_job.get("records"):
+        raise HTTPException(status_code=404, detail="Job not found")
+    if product_id < 0 or product_id >= len(target_job["records"]):
+        raise HTTPException(status_code=404, detail="Product ID out of bounds")
 
-@app.post("/api/intelligence/product/{job_id}/{row_idx}/update")
-async def update_product_field_endpoint(job_id: str, row_idx: int, req: FieldUpdateRequest):
-    """Updates / approves a field by human reviewer."""
-    success = pipeline.update_product_field(job_id, row_idx, req.field_name, req.new_value)
-    if success:
-        return {"message": "Field updated successfully", "field": req.field_name, "value": req.new_value}
-    return JSONResponse(status_code=400, content={"error": "Failed to update field"})
+    raw_row = target_job["raw_dataframe"].iloc[product_id].to_dict()
+    enriched = pipeline.enrich_single_product(raw_row, row_idx=product_id)
+    target_job["records"][product_id] = enriched
+    return {"message": "Product reprocessed successfully", "product": enriched}
 
-@app.get("/api/intelligence/export/{job_id}/csv")
-async def export_job_csv(job_id: str):
+@app.get("/api/review-queue")
+async def get_review_queue_endpoint():
+    """Retrieves all products currently flagged as NEEDS_REVIEW across active jobs."""
+    review_queue = []
+    for job_id, job in pipeline.jobs.items():
+        for r in job.get("records", []):
+            if r.get("Validation_Status") in ["NEEDS_REVIEW", "PARTIAL", "FAILED"] or r.get("Review_Status") == "NEEDS_REVIEW":
+                review_queue.append({
+                    "job_id": job_id,
+                    "row_idx": r.get("_row_idx", 0),
+                    "part_number": r.get("Mfg_Part_Num", ""),
+                    "brand": r.get("Resolved_Brand", ""),
+                    "title": r.get("Product_Title", ""),
+                    "confidence": r.get("Overall_Confidence_Score", "0.00"),
+                    "status": r.get("Validation_Status", "NEEDS_REVIEW")
+                })
+    return {"count": len(review_queue), "items": review_queue}
+
+@app.post("/api/products/{product_id}/review")
+async def submit_product_review_endpoint(product_id: int, review: ReviewAction, job_id: Optional[str] = None):
+    """Submits a human review action (Approve, Edit, Reject)."""
+    target_job = pipeline.jobs.get(job_id) if job_id else next(iter(pipeline.jobs.values()), None)
+    if not target_job or product_id >= len(target_job.get("records", [])):
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    rec = target_job["records"][product_id]
+    rec[review.field_name] = review.new_value
+    rec["Review_Status"] = review.action.upper()
+    if review.action.upper() == "APPROVE":
+        rec["Validation_Status"] = "VERIFIED"
+
+    return {"message": f"Review action '{review.action}' applied successfully", "field": review.field_name, "value": review.new_value}
+
+@app.get("/api/products/{product_id}/sources")
+async def get_product_sources_endpoint(product_id: int, job_id: Optional[str] = None):
+    """Returns discovered URLs and source metadata for the product."""
+    prod = await get_single_product_endpoint(product_id, job_id)
+    sources = [
+        {"title": "Manufacturer Portal", "url": prod.get("Manufacturer_Product_URL", "")},
+        {"title": "Spec Sheet / Datasheet", "url": prod.get("Spec_Sheet_URL", "")},
+        {"title": "User Manual", "url": prod.get("User_Manual_URL", "")},
+        {"title": "3D CAD Drawing", "url": prod.get("CAD_Drawing_URL", "")},
+        {"title": "SDS / MSDS", "url": prod.get("SDS_MSDS_URL", "")},
+        {"title": "Grainger Catalog", "url": prod.get("Distributor_URL_1", "")},
+        {"title": "Radwell Reference", "url": prod.get("Distributor_URL_2", "")},
+        {"title": "GlobalSpec Reference", "url": prod.get("Reference_Source_URL", "")}
+    ]
+    return {"sources": [s for s in sources if s["url"]]}
+
+@app.get("/api/products/{product_id}/evidence")
+async def get_product_evidence_endpoint(product_id: int, job_id: Optional[str] = None):
+    """Returns RAG evidence chunks and citations for the product."""
+    prod = await get_single_product_endpoint(product_id, job_id)
+    return {"evidence": prod.get("_rag_evidence", [])}
+
+@app.get("/api/jobs/{job_id}/export/csv")
+async def export_job_csv_endpoint(job_id: str):
     """Exports exact 252-column CSV file."""
     job = pipeline.jobs.get(job_id)
     if not job or not job.get("records"):
-        return JSONResponse(status_code=404, content={"error": "No records available to export"})
-    
+        raise HTTPException(status_code=404, detail="No records available to export")
+
     csv_bytes = export_to_csv_bytes(job["records"])
     filename = f"Enriched_Product_Catalog_252_Cols_{job_id}.csv"
-    
     return Response(
         content=csv_bytes,
         media_type="text/csv",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'}
     )
 
-@app.get("/api/intelligence/export/{job_id}/xlsx")
-async def export_job_xlsx(job_id: str):
+@app.get("/api/jobs/{job_id}/export/xlsx")
+async def export_job_xlsx_endpoint(job_id: str):
     """Exports exact 252-column XLSX workbook."""
     job = pipeline.jobs.get(job_id)
     if not job or not job.get("records"):
-        return JSONResponse(status_code=404, content={"error": "No records available to export"})
-    
+        raise HTTPException(status_code=404, detail="No records available to export")
+
     xlsx_bytes = export_to_xlsx_bytes(job["records"])
     filename = f"Enriched_Product_Catalog_252_Cols_{job_id}.xlsx"
-    
     return Response(
         content=xlsx_bytes,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'}
     )
 
-@app.post("/api/intelligence/cancel/{job_id}")
-async def cancel_job(job_id: str):
-    job = pipeline.jobs.get(job_id)
-    if job:
-        job["status"] = "CANCELLED"
-        return {"message": "Job cancellation requested"}
-    return JSONResponse(status_code=404, content={"error": "Job not found"})
+# Compatibility Aliases for UI
+@app.post("/api/intelligence/upload")
+async def alias_upload(background_tasks: BackgroundTasks, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    return await create_job_endpoint(background_tasks, file, db)
+
+@app.get("/api/intelligence/status/{job_id}")
+async def alias_status(job_id: str):
+    return await get_job_status_endpoint(job_id)
+
+@app.get("/api/intelligence/products/{job_id}")
+async def alias_products(job_id: str, page: int = Query(1), page_size: int = Query(20), search: str = Query(""), brand: str = Query("ALL"), status: str = Query("ALL")):
+    return await get_job_products_endpoint(job_id, page, page_size, search, brand, status)
+
+@app.get("/api/intelligence/product/{job_id}/{row_idx}")
+async def alias_product_detail(job_id: str, row_idx: int):
+    return await get_single_product_endpoint(row_idx, job_id)
+
+@app.post("/api/intelligence/product/{job_id}/{row_idx}/update")
+async def alias_update_field(job_id: str, row_idx: int, req: Dict[str, Any]):
+    action = ReviewAction(field_name=req.get("field_name", ""), new_value=req.get("new_value", ""), action="EDIT")
+    return await submit_product_review_endpoint(row_idx, action, job_id)
+
+@app.get("/api/intelligence/export/{job_id}/{format}")
+async def alias_export(job_id: str, format: str):
+    if format == "csv":
+        return await export_job_csv_endpoint(job_id)
+    return await export_job_xlsx_endpoint(job_id)
+
+@app.post("/api/intelligence/demo/load")
+async def load_sample_dataset_endpoint(background_tasks: BackgroundTasks, rows: int = 100):
+    sample_path = "data/sample_industrial_input.csv"
+    if not os.path.exists(sample_path):
+        generate_sample_csv(sample_path, total_rows=1000)
+    df = pd.read_csv(sample_path).iloc[:rows]
+    job_id = pipeline.create_job(df, filename=f"sample_industrial_{rows}_rows.csv")
+    background_tasks.add_task(pipeline.run_batch_job, job_id)
+    return {"message": f"Loaded {len(df)} sample parts.", "job_id": job_id, "total_rows": len(df)}
 
 if __name__ == "__main__":
     import uvicorn
-    print("Starting server on http://localhost:8000 ...")
     uvicorn.run(app, host="localhost", port=8000)

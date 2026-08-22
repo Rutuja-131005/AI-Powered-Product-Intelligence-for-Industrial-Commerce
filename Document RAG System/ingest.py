@@ -1,8 +1,13 @@
+"""
+Document Ingestion & Indexing Engine with Product Metadata Support
+Supports PDF, DOCX, TXT with section-aware chunking and ChromaDB persistence.
+"""
+
 import os
 import glob
+import hashlib
 import chromadb
 from chromadb.utils import embedding_functions
-from sentence_transformers import SentenceTransformer
 import pypdf
 import docx
 
@@ -11,12 +16,19 @@ COLLECTION_NAME = "rag_collection"
 MODEL_NAME = "all-MiniLM-L6-v2"
 _EF = None
 
+def get_ef():
+    global _EF
+    if _EF is None:
+        _EF = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=MODEL_NAME)
+    return _EF
+
 def parse_pdf(file_path):
     text = ""
     try:
         reader = pypdf.PdfReader(file_path)
-        for page in reader.pages:
-            text += page.extract_text() + "\n"
+        for page_num, page in enumerate(reader.pages):
+            page_text = page.extract_text() or ""
+            text += f"\n--- Page {page_num + 1} ---\n" + page_text
     except Exception as e:
         print(f"Error reading PDF {file_path}: {e}")
     return text
@@ -63,7 +75,7 @@ def split_text(text, chunk_size=1000, overlap=200):
         start += (chunk_size - overlap)
     return chunks
 
-def ingest_file(file_path):
+def ingest_file(file_path, extra_metadata: dict = None):
     filename = os.path.basename(file_path)
     print(f"Ingesting file: {filename}")
     
@@ -80,19 +92,25 @@ def ingest_file(file_path):
     chunked_texts = []
     metadatas = []
     ids = []
+    content_hash = hashlib.sha256(text.encode('utf-8')).hexdigest()[:16]
     
     for i, chunk in enumerate(chunks):
         chunked_texts.append(chunk)
-        metadatas.append({"source": filename, "chunk_id": i})
+        meta = {
+            "source": filename,
+            "chunk_id": i,
+            "content_hash": content_hash,
+            "source_type": extra_metadata.get("source_type", "SPEC_SHEET") if extra_metadata else "SPEC_SHEET"
+        }
+        if extra_metadata:
+            meta.update(extra_metadata)
+            
+        metadatas.append(meta)
         ids.append(f"{filename}_{i}")
 
     client = chromadb.PersistentClient(path=CHROMA_PATH)
-    # Use global EF if available, otherwise initialize (though it should be global ideally)
-    global _EF
-    if _EF is None:
-        _EF = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=MODEL_NAME)
-    
-    collection = client.get_or_create_collection(name=COLLECTION_NAME, embedding_function=_EF)
+    ef = get_ef()
+    collection = client.get_or_create_collection(name=COLLECTION_NAME, embedding_function=ef)
 
     collection.upsert(
         documents=chunked_texts,
@@ -104,13 +122,13 @@ def ingest_file(file_path):
 def ingest_directory(directory="data"):
     files = glob.glob(os.path.join(directory, "*"))
     for f in files:
-        if os.path.isfile(f):
+        if os.path.isfile(f) and not f.endswith(".csv") and not f.endswith(".db"):
             ingest_file(f)
 
 def get_collection_stats():
     try:
         client = chromadb.PersistentClient(path=CHROMA_PATH)
-        ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=MODEL_NAME)
+        ef = get_ef()
         try:
             collection = client.get_collection(name=COLLECTION_NAME, embedding_function=ef)
             return collection.count()
@@ -120,19 +138,16 @@ def get_collection_stats():
         print(f"Error getting stats: {e}")
         return 0
 
-if __name__ == "__main__":
-    ingest_directory()
-
 def delete_file_embeddings(filename):
     try:
         client = chromadb.PersistentClient(path=CHROMA_PATH)
-        ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=MODEL_NAME)
+        ef = get_ef()
         collection = client.get_collection(name=COLLECTION_NAME, embedding_function=ef)
-        
-        # Delete items where metadata 'source' matches the filename
-        # Note: ChromaDB delete expects ids or where/where_document filter
         collection.delete(where={"source": filename})
         return True
     except Exception as e:
         print(f"Error deleting embeddings for {filename}: {e}")
         return False
+
+if __name__ == "__main__":
+    ingest_directory()

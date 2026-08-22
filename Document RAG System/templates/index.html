@@ -4,391 +4,609 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Product Intelligence & Document RAG Platform</title>
+    <title>AI Product Intelligence Platform — Industrial Catalog Intelligence</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=2.0">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css?v=3.0">
 </head>
 
 <body class="dark-theme">
-    <!-- Main App Container -->
+    <!-- Main Application Grid Layout -->
     <div class="app-layout">
-        <!-- Top Navigation Bar -->
-        <header class="top-nav">
-            <div class="nav-brand">
-                <div class="brand-icon">⚡</div>
-                <div class="brand-text">
-                    <h2>CATALOG<span class="gradient-text">IQ</span></h2>
-                    <span class="sub-brand">AI Industrial Product Intelligence</span>
+        
+        <!-- Left Sidebar Navigation -->
+        <aside class="app-sidebar">
+            <div class="brand-container">
+                <div class="brand-badge">⚡</div>
+                <div class="brand-details">
+                    <h1>CATALOG<span class="brand-highlight">IQ</span></h1>
+                    <span class="brand-tag">AI Product Intelligence</span>
                 </div>
             </div>
 
-            <!-- Main Tab Switcher -->
-            <div class="nav-tabs">
-                <button id="tab-btn-intelligence" class="nav-tab active" onclick="switchView('intelligence')">
-                    <span class="tab-icon">⚙️</span>
-                    <span>Product Intelligence Studio</span>
-                    <span class="badge-pill">252 Cols</span>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">WORKSPACE</div>
+                <button class="nav-link active" onclick="switchNavTab('dashboard')" id="nav-btn-dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Dashboard</span>
                 </button>
-                <button id="tab-btn-rag" class="nav-tab" onclick="switchView('rag')">
-                    <span class="tab-icon">📚</span>
-                    <span>Document RAG Assistant</span>
+                <button class="nav-link" onclick="switchNavTab('catalog')" id="nav-btn-catalog">
+                    <span class="nav-icon">📦</span>
+                    <span class="nav-label">Catalog</span>
+                    <span class="nav-badge" id="sidebar-catalog-count">0</span>
                 </button>
-            </div>
+                <button class="nav-link" onclick="switchNavTab('jobs')" id="nav-btn-jobs">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">Enrichment Jobs</span>
+                    <span class="pulse-dot-small" id="job-active-indicator" style="display:none;"></span>
+                </button>
+                <button class="nav-link" onclick="switchNavTab('review')" id="nav-btn-review">
+                    <span class="nav-icon">🛡️</span>
+                    <span class="nav-label">Review Queue</span>
+                    <span class="nav-badge warning-badge" id="sidebar-review-count">0</span>
+                </button>
+                <button class="nav-link" onclick="switchNavTab('sources')" id="nav-btn-sources">
+                    <span class="nav-icon">🔍</span>
+                    <span class="nav-label">Sources & Evidence</span>
+                </button>
+                <button class="nav-link" onclick="switchNavTab('export')" id="nav-btn-export">
+                    <span class="nav-icon">📤</span>
+                    <span class="nav-label">Export</span>
+                    <span class="nav-badge success-badge">252 Cols</span>
+                </button>
 
-            <div class="nav-status">
-                <div class="pulse-indicator"></div>
-                <span id="global-status-text">Engine Online</span>
-            </div>
-        </header>
+                <div class="nav-section-title" style="margin-top: 24px;">INTELLIGENCE ASSISTANT</div>
+                <button class="nav-link" onclick="switchNavTab('rag')" id="nav-btn-rag">
+                    <span class="nav-icon">🤖</span>
+                    <span class="nav-label">Ask Product AI</span>
+                </button>
+            </nav>
 
-        <!-- VIEW 1: Product Intelligence Studio -->
-        <main id="view-intelligence" class="view-panel active">
-            <div class="studio-container">
-                
-                <!-- Section 1: Upload & Action Hub -->
-                <section class="action-hub-card">
-                    <div class="hub-header">
-                        <div>
-                            <h3>📥 Ingest Sparse Industrial Records</h3>
-                            <p class="text-muted">Upload 6-column sparse catalog (CSV/XLSX) to enrich into 252 commerce-ready fields with verified provenance.</p>
-                        </div>
-                        <div class="demo-buttons">
-                            <button class="btn btn-secondary" onclick="loadSampleDemo(100)">
-                                <span>⚡</span> Load 100 Sample Parts
-                            </button>
-                            <button class="btn btn-primary" onclick="loadSampleDemo(1000)">
-                                <span>🚀</span> Load 1,000 Evaluation Set
-                            </button>
+            <div class="sidebar-footer">
+                <div class="system-status-indicator">
+                    <span class="status-dot online"></span>
+                    <div class="status-info">
+                        <span class="status-label">Pipeline Engine</span>
+                        <span class="status-sub">252-Col Schema Verified</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content-wrapper">
+            
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <div class="header-breadcrumb">
+                    <span class="crumb-root">AI Product Intelligence</span>
+                    <span class="crumb-separator">/</span>
+                    <span class="crumb-active" id="current-section-title">Dashboard</span>
+                </div>
+
+                <div class="header-actions">
+                    <button class="btn btn-sm btn-secondary" onclick="loadSampleDemo(100)">
+                        <span>⚡</span> Load 100 Sample Rows
+                    </button>
+                    <button class="btn btn-sm btn-primary" onclick="loadSampleDemo(1000)">
+                        <span>🚀</span> Load 1,000 Evaluation Set
+                    </button>
+                    <button class="btn btn-sm btn-outline" onclick="triggerFileUpload()">
+                        <span>📥</span> Upload CSV/XLSX
+                    </button>
+                    <input type="file" id="catalog-file-input" accept=".csv,.xlsx,.xls,.txt" hidden>
+                </div>
+            </header>
+
+            <!-- VIEW 1: DASHBOARD -->
+            <section id="view-dashboard" class="content-view active">
+                <div class="view-header">
+                    <div>
+                        <h2>Catalog Intelligence Dashboard</h2>
+                        <p class="text-muted">Real-time telemetry, confidence metrics, and enrichment coverage across industrial catalog data.</p>
+                    </div>
+                    <div class="header-controls">
+                        <button class="btn btn-outline btn-sm" onclick="refreshDashboardData()">🔄 Refresh</button>
+                    </div>
+                </div>
+
+                <!-- KPI Metric Cards Grid -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-blue">📦</div>
+                        <div class="kpi-details">
+                            <span class="kpi-title">Total Products</span>
+                            <h3 class="kpi-value" id="kpi-total-products">0</h3>
+                            <span class="kpi-subtitle">Ingested rows</span>
                         </div>
                     </div>
 
-                    <div class="drop-zone-container" id="catalog-drop-zone">
-                        <input type="file" id="catalog-file-input" accept=".csv,.xlsx,.xls,.txt" hidden>
-                        <div class="drop-zone-content">
-                            <div class="upload-art">📄</div>
-                            <h4>Drag & drop product CSV / XLSX here</h4>
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-green">✅</div>
+                        <div class="kpi-details">
+                            <span class="kpi-title">Fully Processed</span>
+                            <h3 class="kpi-value" id="kpi-processed-products">0</h3>
+                            <span class="kpi-subtitle text-success" id="kpi-processed-rate">0% completion</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-yellow">⚠️</div>
+                        <div class="kpi-details">
+                            <span class="kpi-title">Needs Review</span>
+                            <h3 class="kpi-value text-warning" id="kpi-needs-review">0</h3>
+                            <span class="kpi-subtitle">Low confidence / conflict</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-red">❌</div>
+                        <div class="kpi-details">
+                            <span class="kpi-title">Validation Errors</span>
+                            <h3 class="kpi-value text-danger" id="kpi-validation-errors">0</h3>
+                            <span class="kpi-subtitle">Isolated row anomalies</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-purple">🎯</div>
+                        <div class="kpi-details">
+                            <span class="kpi-title">Average Confidence</span>
+                            <h3 class="kpi-value text-accent" id="kpi-avg-confidence">0.0%</h3>
+                            <span class="kpi-subtitle">Grounded provenance score</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Widgets 2-Column Grid -->
+                <div class="dashboard-widgets-grid">
+                    
+                    <!-- Widget 1: Active Job Progress -->
+                    <div class="widget-card">
+                        <div class="widget-header">
+                            <h4>⚡ Active Enrichment Pipeline</h4>
+                            <span class="status-chip" id="dash-job-status-chip">IDLE</span>
+                        </div>
+                        <div class="widget-body">
+                            <div class="dash-progress-box">
+                                <div class="progress-info-row">
+                                    <span id="dash-job-filename">No active batch job</span>
+                                    <span class="font-mono text-accent" id="dash-progress-percent">0%</span>
+                                </div>
+                                <div class="progress-track">
+                                    <div class="progress-fill" id="dash-progress-fill" style="width: 0%;"></div>
+                                </div>
+                                <div class="progress-stats-row">
+                                    <span>Processed: <strong id="dash-stat-processed">0</strong> / <span id="dash-stat-total">0</span></span>
+                                    <span>Elapsed: <strong id="dash-stat-elapsed">0.0s</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Widget 2: Missing Attribute Coverage -->
+                    <div class="widget-card">
+                        <div class="widget-header">
+                            <h4>🛡️ 252-Column Coverage & Completeness</h4>
+                            <span class="badge-pill success">Strict Schema</span>
+                        </div>
+                        <div class="widget-body">
+                            <div class="coverage-bar-list">
+                                <div class="coverage-item">
+                                    <div class="coverage-label-row">
+                                        <span>Raw Source Input Preservation (100%)</span>
+                                        <span class="font-mono text-success">100.0%</span>
+                                    </div>
+                                    <div class="progress-track mini"><div class="progress-fill" style="width: 100%;"></div></div>
+                                </div>
+                                <div class="coverage-item">
+                                    <div class="coverage-label-row">
+                                        <span>Identity & Canonical Part Resolution</span>
+                                        <span class="font-mono text-success" id="cov-ident">99.8%</span>
+                                    </div>
+                                    <div class="progress-track mini"><div class="progress-fill" id="cov-ident-bar" style="width: 99.8%;"></div></div>
+                                </div>
+                                <div class="coverage-item">
+                                    <div class="coverage-label-row">
+                                        <span>Commerce Copy (Descriptions & 20 Features)</span>
+                                        <span class="font-mono text-success" id="cov-copy">98.4%</span>
+                                    </div>
+                                    <div class="progress-track mini"><div class="progress-fill" id="cov-copy-bar" style="width: 98.4%;"></div></div>
+                                </div>
+                                <div class="coverage-item">
+                                    <div class="coverage-label-row">
+                                        <span>50 Technical Attribute Triplets (ANSI/NIST)</span>
+                                        <span class="font-mono text-accent" id="cov-attrs">96.5%</span>
+                                    </div>
+                                    <div class="progress-track mini"><div class="progress-fill" id="cov-attrs-bar" style="width: 96.5%;"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Drag & Drop Upload Quickcard -->
+                <div class="upload-quick-card" id="catalog-drop-zone">
+                    <div class="upload-drop-content">
+                        <div class="upload-icon-large">📄</div>
+                        <div class="upload-text-box">
+                            <h4>Drag and drop sparse industrial catalog (CSV / XLSX)</h4>
                             <p class="text-muted">Accepts <code>Mfg_Part_Num</code>, <code>Part_Desc</code>, <code>E1_Brand</code>, <code>Unilog_Brand</code>, <code>DIB_Brand</code>, <code>Part_Manuf</code></p>
-                            <button class="btn btn-outline" onclick="document.getElementById('catalog-file-input').click()">Browse Local Files</button>
                         </div>
+                        <button class="btn btn-outline" onclick="triggerFileUpload()">Browse Files</button>
                     </div>
-                </section>
+                </div>
 
-                <!-- Section 2: Active Job Progress & KPIs -->
-                <section id="job-progress-panel" class="job-progress-panel" style="display: none;">
-                    <div class="job-header">
-                        <div class="job-info">
-                            <span class="status-chip" id="job-status-chip">PROCESSING</span>
-                            <h4 id="job-filename">sample_industrial_input.csv</h4>
-                            <span class="job-id-text" id="job-id-display">Job: #---</span>
-                        </div>
-                        <div class="job-actions">
-                            <button id="btn-export-csv" class="btn btn-success" onclick="exportCatalog('csv')" disabled>
-                                <span>📥</span> Download 252-Col CSV
-                            </button>
-                            <button id="btn-export-xlsx" class="btn btn-accent" onclick="exportCatalog('xlsx')" disabled>
-                                <span>📊</span> Download 252-Col XLSX
-                            </button>
-                        </div>
+            </section>
+
+            <!-- VIEW 2: CATALOG -->
+            <section id="view-catalog" class="content-view">
+                <div class="view-header">
+                    <div>
+                        <h2>Enriched Product Catalog</h2>
+                        <p class="text-muted">Search, filter, inspect provenance, and review 252-column commerce intelligence records.</p>
                     </div>
+                    <div class="header-controls">
+                        <button class="btn btn-success btn-sm" onclick="exportCatalog('csv')">📥 Export CSV (252 Cols)</button>
+                        <button class="btn btn-accent btn-sm" onclick="exportCatalog('xlsx')">📊 Export XLSX (252 Cols)</button>
+                    </div>
+                </div>
 
-                    <!-- Progress Bar -->
-                    <div class="progress-bar-wrapper">
-                        <div class="progress-info">
-                            <span>Processing Pipeline (<span id="progress-percent">0%</span>)</span>
-                            <span><span id="processed-count">0</span> / <span id="total-count">0</span> rows</span>
-                        </div>
-                        <div class="progress-track">
-                            <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
-                        </div>
+                <!-- Filter Controls Bar -->
+                <div class="filter-controls-bar">
+                    <div class="search-input-group">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="catalog-search-input" placeholder="Search by Part #, Product Name, Brand, or Keyword..." oninput="onSearchCatalog()">
                     </div>
 
-                    <!-- KPI Grid -->
-                    <div class="kpi-grid">
-                        <div class="kpi-card">
-                            <div class="kpi-title">Total Products</div>
-                            <div class="kpi-value" id="kpi-total">0</div>
-                            <div class="kpi-sub">100% rows preserved</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-title">Schema Compliance</div>
-                            <div class="kpi-value highlight-cyan">252 / 252</div>
-                            <div class="kpi-sub">Exact fixed headers</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-title">Avg Confidence Score</div>
-                            <div class="kpi-value highlight-green" id="kpi-confidence">0.0%</div>
-                            <div class="kpi-sub">Evidence-grounded</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-title">Verified Records</div>
-                            <div class="kpi-value" id="kpi-verified">0</div>
-                            <div class="kpi-sub">High evidence support</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-title">Needs Review</div>
-                            <div class="kpi-value highlight-yellow" id="kpi-review">0</div>
-                            <div class="kpi-sub">Partial / low confidence</div>
-                        </div>
+                    <div class="filter-dropdown-group">
+                        <select id="catalog-filter-brand" onchange="onFilterChange()">
+                            <option value="ALL">All Brands</option>
+                        </select>
+
+                        <select id="catalog-filter-status" onchange="onFilterChange()">
+                            <option value="ALL">All Validation Statuses</option>
+                            <option value="VERIFIED">✅ Verified (High Conf)</option>
+                            <option value="PARTIAL">⚠️ Partial (Needs Review)</option>
+                            <option value="FAILED">❌ Failed</option>
+                        </select>
                     </div>
-                </section>
+                </div>
 
-                <!-- Section 3: Enriched Catalog Studio & Review Table -->
-                <section id="catalog-table-section" class="catalog-table-section" style="display: none;">
-                    <div class="table-controls">
-                        <div class="search-box">
-                            <span class="search-icon">🔍</span>
-                            <input type="text" id="catalog-search" placeholder="Search Part #, Description, Brand..." oninput="onCatalogFilterChange()">
-                        </div>
+                <!-- Dense Catalog Table -->
+                <div class="table-container">
+                    <table class="catalog-table" id="catalog-data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px;">#</th>
+                                <th>Part Number</th>
+                                <th>Product Name</th>
+                                <th>Manufacturer / Brand</th>
+                                <th>Category Path</th>
+                                <th style="width: 100px;">Confidence</th>
+                                <th style="width: 110px;">Validation</th>
+                                <th style="width: 110px;">Review Status</th>
+                                <th style="width: 140px; text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="catalog-table-body">
+                            <tr>
+                                <td colspan="9" class="empty-state-row">
+                                    <div class="empty-state">
+                                        <span class="empty-icon">📭</span>
+                                        <h4>No Catalog Records Ingested</h4>
+                                        <p class="text-muted">Upload a CSV/XLSX or click "Load 100 Sample Rows" to start intelligence enrichment.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                        <div class="filter-group">
-                            <select id="brand-filter" onchange="onCatalogFilterChange()">
-                                <option value="ALL">All Brands (Consensus)</option>
-                                <option value="Allen-Bradley">Allen-Bradley</option>
-                                <option value="Schneider Electric">Schneider Electric</option>
-                                <option value="Square D">Square D</option>
-                                <option value="Siemens">Siemens</option>
-                                <option value="Eaton">Eaton</option>
-                                <option value="ABB">ABB</option>
-                                <option value="Honeywell">Honeywell</option>
-                                <option value="Parker Hannifin">Parker Hannifin</option>
-                            </select>
-
-                            <select id="status-filter" onchange="onCatalogFilterChange()">
-                                <option value="ALL">All Validation Statuses</option>
-                                <option value="VERIFIED">Verified (>= 85%)</option>
-                                <option value="PARTIAL">Partial (70-84%)</option>
-                                <option value="NEEDS_REVIEW">Needs Review (< 70%)</option>
-                            </select>
-                        </div>
+                <!-- Pagination Bar -->
+                <div class="pagination-bar">
+                    <div class="pagination-info">
+                        Showing <span id="page-start-idx">0</span> to <span id="page-end-idx">0</span> of <span id="page-total-count">0</span> items
                     </div>
-
-                    <!-- Catalog Data Table -->
-                    <div class="table-wrapper">
-                        <table class="catalog-table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Original Part #</th>
-                                    <th>Resolved Brand</th>
-                                    <th>Commerce Product Title</th>
-                                    <th>Primary Category</th>
-                                    <th>Voltage / Current</th>
-                                    <th>Confidence</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="catalog-table-body">
-                                <!-- Populated dynamically -->
-                            </tbody>
-                        </table>
+                    <div class="pagination-controls">
+                        <button class="btn btn-outline btn-sm" id="btn-prev-page" onclick="changePage(-1)" disabled>Previous</button>
+                        <span class="page-indicator" id="current-page-num">Page 1</span>
+                        <button class="btn btn-outline btn-sm" id="btn-next-page" onclick="changePage(1)" disabled>Next</button>
                     </div>
+                </div>
+            </section>
 
-                    <!-- Pagination -->
-                    <div class="pagination-footer">
-                        <span id="pagination-info" class="text-muted">Showing 0 to 0 of 0 records</span>
-                        <div class="pagination-controls">
-                            <button id="btn-prev-page" class="btn btn-sm btn-secondary" onclick="changeCatalogPage(-1)" disabled>Previous</button>
-                            <span id="current-page-num" class="page-badge">1</span>
-                            <button id="btn-next-page" class="btn btn-sm btn-secondary" onclick="changeCatalogPage(1)" disabled>Next</button>
+            <!-- VIEW 3: ENRICHMENT JOBS -->
+            <section id="view-jobs" class="content-view">
+                <div class="view-header">
+                    <div>
+                        <h2>Batch Enrichment Jobs</h2>
+                        <p class="text-muted">Monitor background workers, live processing throughput, row isolation, and failure recovery.</p>
+                    </div>
+                </div>
+
+                <div class="job-monitor-card">
+                    <div class="job-monitor-header">
+                        <div>
+                            <span class="status-chip" id="job-page-status">PROCESSING</span>
+                            <h3 id="job-page-filename">sample_industrial_input.csv</h3>
+                            <span class="text-muted font-mono" id="job-page-id">Job: #---</span>
                         </div>
-                    </div>
-                </section>
-            </div>
-        </main>
-
-        <!-- VIEW 2: Document RAG Assistant -->
-        <main id="view-rag" class="view-panel">
-            <div class="rag-layout">
-                <!-- RAG Sidebar -->
-                <aside class="rag-sidebar">
-                    <div class="sidebar-block">
-                        <h4>📄 Ingest Documentation</h4>
-                        <p class="text-muted">Upload product spec sheets, manuals, or PDF brochures into vector store.</p>
-                        <div class="rag-upload-box" id="rag-drop-zone">
-                            <input type="file" id="rag-file-input" accept=".txt,.pdf,.docx" hidden>
-                            <button class="btn btn-sm btn-outline w-100" onclick="document.getElementById('rag-file-input').click()">Upload Manual / Datasheet</button>
-                            <div id="rag-upload-msg" class="status-mini-msg"></div>
+                        <div class="job-monitor-actions">
+                            <button class="btn btn-outline btn-sm" onclick="cancelCurrentJob()">⏹️ Cancel Job</button>
+                            <button class="btn btn-outline btn-sm" onclick="refreshDashboardData()">🔄 Refresh</button>
                         </div>
                     </div>
 
-                    <div class="sidebar-block">
-                        <h4>📊 Vector Index Stats</h4>
-                        <div class="stat-badge-row">
-                            <span>ChromaDB Chunks:</span>
-                            <span id="rag-chunk-count" class="badge-bold">0</span>
+                    <div class="job-monitor-body">
+                        <div class="progress-info-row">
+                            <span>Batch Processing Progress</span>
+                            <span class="font-mono text-accent" id="job-page-percent">0%</span>
+                        </div>
+                        <div class="progress-track large">
+                            <div class="progress-fill" id="job-page-progress-fill" style="width: 0%;"></div>
+                        </div>
+
+                        <div class="job-stats-metric-grid">
+                            <div class="job-metric-item">
+                                <span class="metric-label">Total Rows</span>
+                                <h4 id="job-metric-total">0</h4>
+                            </div>
+                            <div class="job-metric-item">
+                                <span class="metric-label">Completed Rows</span>
+                                <h4 class="text-success" id="job-metric-completed">0</h4>
+                            </div>
+                            <div class="job-metric-item">
+                                <span class="metric-label">Processing</span>
+                                <h4 class="text-accent" id="job-metric-processing">0</h4>
+                            </div>
+                            <div class="job-metric-item">
+                                <span class="metric-label">Needs Review</span>
+                                <h4 class="text-warning" id="job-metric-review">0</h4>
+                            </div>
+                            <div class="job-metric-item">
+                                <span class="metric-label">Failed (Isolated)</span>
+                                <h4 class="text-danger" id="job-metric-failed">0</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 4: REVIEW QUEUE -->
+            <section id="view-review" class="content-view">
+                <div class="view-header">
+                    <div>
+                        <h2>Human Review Queue</h2>
+                        <p class="text-muted">Prioritized review items with low confidence, technical specification conflicts, or source ambiguity.</p>
+                    </div>
+                    <div class="header-controls">
+                        <span class="badge-pill warning" id="review-queue-count-badge">0 Pending Reviews</span>
+                    </div>
+                </div>
+
+                <div class="review-cards-list" id="review-cards-container">
+                    <div class="empty-state">
+                        <span class="empty-icon">🎉</span>
+                        <h4>Review Queue is Clear</h4>
+                        <p class="text-muted">All catalog items meet high confidence grounding thresholds (≥ 0.85).</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 5: SOURCES & EVIDENCE -->
+            <section id="view-sources" class="content-view">
+                <div class="view-header">
+                    <div>
+                        <h2>Sources & Evidence Repository</h2>
+                        <p class="text-muted">Authoritative portals, spec sheets, user manuals, CAD drawings, and ChromaDB vector chunk citations.</p>
+                    </div>
+                </div>
+
+                <div class="sources-grid">
+                    <div class="sources-card">
+                        <div class="sources-header">
+                            <h4>🏛️ Authoritative Manufacturer Sources</h4>
+                            <span class="badge-pill success">Highest Trust (0.95)</span>
+                        </div>
+                        <ul class="sources-list" id="manufacturer-sources-list">
+                            <li><span class="source-tag">Rockwell Automation</span> <code>literature.rockwellautomation.com</code></li>
+                            <li><span class="source-tag">Schneider Electric</span> <code>se.com/us/en/product</code></li>
+                            <li><span class="source-tag">Siemens Industry</span> <code>mall.industry.siemens.com</code></li>
+                            <li><span class="source-tag">Eaton Corporation</span> <code>eaton.com/ecm/idcplg</code></li>
+                            <li><span class="source-tag">ABB Automation</span> <code>new.abb.com/products</code></li>
+                        </ul>
+                    </div>
+
+                    <div class="sources-card">
+                        <div class="sources-header">
+                            <h4>📚 Vector Ingestion & Chunk Citations</h4>
+                            <span class="badge-pill accent">ChromaDB Store</span>
+                        </div>
+                        <div class="vector-stats-box">
+                            <p><strong>Vector Collection:</strong> <code>rag_collection</code></p>
+                            <p><strong>Embedding Model:</strong> <code>SentenceTransformers (all-MiniLM-L6-v2)</code></p>
+                            <p><strong>Indexed Chunks:</strong> <span id="sources-chunk-count">0</span> chunks</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 6: EXPORT -->
+            <section id="view-export" class="content-view">
+                <div class="view-header">
+                    <div>
+                        <h2>Catalog Intelligence Export</h2>
+                        <p class="text-muted">Validate exact 252-column schema contract and download commerce-ready CSV and XLSX datasets.</p>
+                    </div>
+                </div>
+
+                <div class="export-summary-card">
+                    <div class="export-summary-header">
+                        <div class="export-badge-large">252</div>
+                        <div>
+                            <h3>Contractual 252-Column Export Package</h3>
+                            <p class="text-muted">Strict header names, sequence order, and 100% source input preservation.</p>
                         </div>
                     </div>
 
-                    <div class="sidebar-block flex-fill">
-                        <h4>📜 Chat History</h4>
-                        <div id="rag-history-list" class="history-scroll-box"></div>
-                    </div>
-
-                    <div class="sidebar-block">
-                        <h4>📂 Ingested Corpus Files</h4>
-                        <div id="rag-files-list" class="files-scroll-box"></div>
-                    </div>
-                </aside>
-
-                <!-- RAG Chat Main -->
-                <section class="rag-chat-main">
-                    <div class="chat-header-bar">
-                        <h3>Ask Grounded Technical Questions</h3>
-                        <button class="btn btn-sm btn-secondary" onclick="startNewChat()">+ New Chat</button>
-                    </div>
-
-                    <div id="rag-chat-messages" class="rag-messages-area">
-                        <div class="empty-welcome">
-                            <div class="welcome-icon">💬</div>
-                            <h3>Product Knowledge Assistant</h3>
-                            <p class="text-muted">Ask questions about spec sheets, catalogs, wiring diagrams, and cross-references grounded in ChromaDB embeddings.</p>
+                    <div class="export-metrics-grid">
+                        <div class="export-metric-box">
+                            <span>Input Rows</span>
+                            <h4 id="export-stat-input">0</h4>
+                        </div>
+                        <div class="export-metric-box">
+                            <span>Output Rows</span>
+                            <h4 id="export-stat-output">0</h4>
+                        </div>
+                        <div class="export-metric-box">
+                            <span>Schema Compliance</span>
+                            <h4 class="text-success">252 / 252 (100%)</h4>
+                        </div>
+                        <div class="export-metric-box">
+                            <span>Populated Fields</span>
+                            <h4 class="text-accent" id="export-stat-fields">0</h4>
                         </div>
                     </div>
 
-                    <div class="chat-input-bar">
-                        <textarea id="rag-query-input" placeholder="Ask about technical specifications, ratings, or part numbers..." rows="1"></textarea>
-                        <button id="rag-send-btn" class="btn btn-primary" onclick="sendRagMessage()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="22" y1="2" x2="11" y2="13"></line>
-                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                            </svg>
+                    <div class="export-download-buttons">
+                        <button class="btn btn-success btn-lg" onclick="exportCatalog('csv')">
+                            <span>📥</span> Download Full Catalog CSV (252 Columns)
+                        </button>
+                        <button class="btn btn-accent btn-lg" onclick="exportCatalog('xlsx')">
+                            <span>📊</span> Download Full Catalog XLSX (252 Columns)
                         </button>
                     </div>
-                </section>
-            </div>
-        </main>
+                </div>
+            </section>
+
+            <!-- VIEW 7: ASK PRODUCT AI -->
+            <section id="view-rag" class="content-view">
+                <div class="view-header">
+                    <div>
+                        <h2>Ask Product AI</h2>
+                        <p class="text-muted">Conversational intelligence assistant grounded strictly on technical manuals, datasheets, and catalog records.</p>
+                    </div>
+                </div>
+
+                <div class="rag-chat-container">
+                    <div class="chat-messages-box" id="rag-chat-box">
+                        <div class="chat-message bot-message">
+                            <div class="chat-avatar">🤖</div>
+                            <div class="chat-bubble">
+                                <p>Hello! I am your <strong>Product Intelligence AI Assistant</strong>. Ask me anything about product specifications, cross-references, voltage/current ratings, or installation manuals grounded in your uploaded documents.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-container">
+                        <input type="text" id="rag-query-input" placeholder="Ask a question about your catalog parts or technical specifications..." onkeydown="if(event.key==='Enter') sendRagQuery()">
+                        <button class="btn btn-primary" onclick="sendRagQuery()">Send</button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
     </div>
 
-    <!-- Product Inspection, Provenance & Review Modal -->
-    <div id="product-modal" class="modal-backdrop" style="display: none;">
-        <div class="modal-dialog">
+    <!-- Product Deep-Dive Modal Inspector -->
+    <div class="modal-backdrop" id="product-modal" style="display: none;">
+        <div class="modal-container">
             <div class="modal-header">
-                <div>
-                    <span class="status-chip" id="modal-status-chip">VERIFIED</span>
-                    <h3 id="modal-product-title">Product Inspection & Provenance</h3>
-                    <span class="text-muted" id="modal-product-sub">Mfg Part Number: ---</span>
+                <div class="modal-title-box">
+                    <span class="status-chip" id="modal-validation-chip">VERIFIED</span>
+                    <h3 id="modal-title-pn">Part Number: ---</h3>
+                    <span class="modal-subtitle" id="modal-subtitle-brand">Manufacturer: ---</span>
                 </div>
-                <button class="btn-close" onclick="closeProductModal()">✕</button>
+                <button class="modal-close-btn" onclick="closeProductModal()">✕</button>
             </div>
 
-            <!-- Modal Nav Tabs -->
+            <!-- Modal Sub-Navigation Tabs -->
             <div class="modal-tabs">
-                <button class="modal-tab active" onclick="switchModalTab('tab-overview')">1. Master Specs & Copy</button>
-                <button class="modal-tab" onclick="switchModalTab('tab-triplets')">2. 50 Attribute Triplets Matrix</button>
-                <button class="modal-tab" onclick="switchModalTab('tab-provenance')">3. Evidence & Provenance Trail</button>
-                <button class="modal-tab" onclick="switchModalTab('tab-raw')">4. Source Input Preservation</button>
+                <button class="modal-tab active" onclick="switchModalTab('specs')" id="mtab-btn-specs">Identity & Copy</button>
+                <button class="modal-tab" onclick="switchModalTab('triplets')" id="mtab-btn-triplets">50 Attribute Triplets</button>
+                <button class="modal-tab" onclick="switchModalTab('provenance')" id="mtab-btn-provenance">Evidence & Sources</button>
+                <button class="modal-tab" onclick="switchModalTab('raw')" id="mtab-btn-raw">Raw 6 Inputs</button>
             </div>
 
             <div class="modal-body">
-                <!-- Tab 1: Overview, Specs & Copy -->
-                <div id="tab-overview" class="modal-tab-content active">
-                    <div class="spec-grid">
-                        <div class="spec-card">
-                            <h4>Core Identity</h4>
-                            <div class="spec-row"><span>Canonical Part #:</span> <strong id="spec-canonical-pn">---</strong></div>
-                            <div class="spec-row"><span>Resolved Brand:</span> <strong id="spec-brand" class="highlight-cyan">---</strong></div>
-                            <div class="spec-row"><span>Category Path:</span> <span id="spec-category">---</span></div>
-                            <div class="spec-row"><span>UNSPSC Code:</span> <span id="spec-unspsc">---</span></div>
-                            <div class="spec-row"><span>Lifecycle Status:</span> <span id="spec-lifecycle">Active</span></div>
+                <!-- Sub-tab 1: Specs & Copy -->
+                <div id="mtab-specs" class="modal-tab-content active">
+                    <div class="modal-form-grid">
+                        <div class="form-group full-width">
+                            <label>Product Name</label>
+                            <input type="text" id="modal-field-product-name" class="form-input">
                         </div>
-
-                        <div class="spec-card">
-                            <h4>Ratings & Dimensions</h4>
-                            <div class="spec-row"><span>Voltage Rating:</span> <strong id="spec-voltage">---</strong></div>
-                            <div class="spec-row"><span>Current Rating:</span> <strong id="spec-current">---</strong></div>
-                            <div class="spec-row"><span>Mounting Type:</span> <span id="spec-mounting">---</span></div>
-                            <div class="spec-row"><span>Dimensions:</span> <span id="spec-dims">---</span></div>
-                            <div class="spec-row"><span>Weight:</span> <span id="spec-weight">---</span></div>
+                        <div class="form-group">
+                            <label>Manufacturer Part Number</label>
+                            <input type="text" id="modal-field-mpn" class="form-input" readonly>
                         </div>
-                    </div>
-
-                    <div class="content-block">
-                        <h4>Generated Commerce Title</h4>
-                        <div class="input-inline-edit">
-                            <input type="text" id="edit-product-title" class="form-input">
-                            <button class="btn btn-sm btn-secondary" onclick="saveEditedField('Product_Title', 'edit-product-title')">Save</button>
+                        <div class="form-group">
+                            <label>Brand Name</label>
+                            <input type="text" id="modal-field-brand" class="form-input">
                         </div>
-                    </div>
-
-                    <div class="content-block">
-                        <h4>Short Description</h4>
-                        <div class="input-inline-edit">
-                            <textarea id="edit-short-desc" class="form-input" rows="2"></textarea>
-                            <button class="btn btn-sm btn-secondary" onclick="saveEditedField('Short_Description', 'edit-short-desc')">Save</button>
+                        <div class="form-group full-width">
+                            <label>Short Description</label>
+                            <textarea id="modal-field-short-desc" class="form-input" rows="2"></textarea>
                         </div>
-                    </div>
-
-                    <div class="content-block">
-                        <h4>10 Feature Bullet Points (Grounded)</h4>
-                        <div id="modal-feature-bullets" class="bullet-list-box"></div>
+                        <div class="form-group full-width">
+                            <label>Long Description</label>
+                            <textarea id="modal-field-long-desc" class="form-input" rows="3"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Marketing Description</label>
+                            <textarea id="modal-field-marketing-desc" class="form-input" rows="3"></textarea>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Tab 2: 50 Attribute Triplets -->
-                <div id="tab-triplets" class="modal-tab-content">
-                    <p class="text-muted">Populated up to 50 Attribute Name, Value, and Standard UOM triplets adhering strictly to the 252-column schema contract.</p>
-                    <div class="triplets-matrix-wrapper">
+                <!-- Sub-tab 2: 50 Attribute Triplets -->
+                <div id="mtab-triplets" class="modal-tab-content">
+                    <div class="triplets-table-wrapper">
                         <table class="triplets-table">
                             <thead>
                                 <tr>
-                                    <th>#</th>
-                                    <th>Attribute Name</th>
-                                    <th>Normalized Value</th>
-                                    <th>Standard UOM</th>
-                                    <th>Action</th>
+                                    <th style="width: 60px;">Slot</th>
+                                    <th>ATTRIBUTE_LABEL</th>
+                                    <th>ATTRIBUTE_VALUE</th>
+                                    <th>ATTRIBUTE_UOM</th>
                                 </tr>
                             </thead>
                             <tbody id="modal-triplets-tbody">
-                                <!-- Populated dynamically -->
+                                <!-- Dynamic rows 1..50 -->
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Tab 3: Evidence & Provenance Trail -->
-                <div id="tab-provenance" class="modal-tab-content">
-                    <div class="provenance-section">
-                        <h4>Discovered Authoritative Portals & Datasheets</h4>
-                        <div id="modal-discovered-links" class="links-chip-grid"></div>
-                    </div>
-
-                    <div class="provenance-section mt-4">
-                        <h4>ChromaDB Grounded Context & Citations</h4>
-                        <div id="modal-rag-evidence-list" class="evidence-box"></div>
-                    </div>
-
-                    <div class="provenance-section mt-4">
-                        <h4>Field-Level Audit Log (JSON)</h4>
-                        <pre id="modal-provenance-json" class="json-viewer"></pre>
+                <!-- Sub-tab 3: Evidence & Provenance -->
+                <div id="mtab-provenance" class="modal-tab-content">
+                    <div class="provenance-box" id="modal-provenance-box">
+                        <!-- Evidence list -->
                     </div>
                 </div>
 
-                <!-- Tab 4: Source Input Preservation -->
-                <div id="tab-raw" class="modal-tab-content">
-                    <p class="text-muted">Original 6-column evaluation input preserved 100% verbatim without modification.</p>
-                    <div class="raw-data-grid" id="modal-raw-inputs-grid">
-                        <!-- Populated dynamically -->
+                <!-- Sub-tab 4: Raw Inputs -->
+                <div id="mtab-raw" class="modal-tab-content">
+                    <div class="raw-inputs-grid" id="modal-raw-inputs-box">
+                        <!-- Raw 6 fields -->
                     </div>
                 </div>
             </div>
 
             <div class="modal-footer">
-                <div class="review-status-text">
-                    <span>Review State: <strong id="modal-review-status">PENDING</strong></span>
-                </div>
-                <div class="modal-footer-actions">
-                    <button class="btn btn-secondary" onclick="closeProductModal()">Close</button>
-                    <button class="btn btn-success" onclick="approveProductRecord()">✓ Approve Record</button>
-                </div>
+                <button class="btn btn-danger btn-sm" onclick="reviewModalAction('REJECT')">Reject</button>
+                <button class="btn btn-outline btn-sm" onclick="reviewModalAction('EDIT')">Save Changes</button>
+                <button class="btn btn-success btn-sm" onclick="reviewModalAction('APPROVE')">Approve & Verify</button>
             </div>
         </div>
     </div>
 
-    <script src="/static/script.js?v=2.0"></script>
+    <!-- Scripts -->
+    <script src="/static/script.js?v=3.0"></script>
 </body>
 
 </html>

@@ -78,7 +78,11 @@ def resolve_product_identity(
         score_map: Dict[str, float] = {}
         for raw_name, weight in candidates:
             cleaned = raw_name.strip()
-            canonical = BRAND_ALIASES.get(cleaned.lower(), cleaned.title())
+            # Clean corporate suffixes
+            cleaned_brand = re.sub(r'\b(Corporation|Corp\.?|Inc\.?|LLC|Ltd\.?|Co\.?|GmbH|AG)\b', '', cleaned, flags=re.I).strip()
+            if not cleaned_brand:
+                cleaned_brand = cleaned
+            canonical = BRAND_ALIASES.get(cleaned_brand.lower(), cleaned_brand.title())
             score_map[canonical] = score_map.get(canonical, 0.0) + weight
 
         sorted_brands = sorted(score_map.items(), key=lambda x: x[1], reverse=True)

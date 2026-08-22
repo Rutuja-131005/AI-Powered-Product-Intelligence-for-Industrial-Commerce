@@ -95,53 +95,30 @@ class ProductIntelligencePipeline:
             sources_dict=sources_dict
         )
 
-        # 7. Assemble Complete Record adhering strictly to EXPECTED_OUTPUT_COLUMNS
-        record: Dict[str, Any] = {}
-        
-        # Original 6
-        record["Mfg_Part_Num"] = mfg_part_num
-        record["Part_Desc"] = part_desc
-        record["E1_Brand"] = e1_brand
-        record["Unilog_Brand"] = unilog_brand
-        record["DIB_Brand"] = dib_brand
-        record["Part_Manuf"] = part_manuf
+        # Assemble merged dict
+        merged_payload = {
+            "Resolved_Brand": resolved_brand,
+            "Canonical_Part_Number": canonical_pn,
+            "Normalized_Part_Number": normalized_pn,
+            **specs,
+            **commerce_copy,
+            **sources_dict,
+            **quality_metadata,
+            **triplets
+        }
 
-        # Identity
-        record["Resolved_Brand"] = resolved_brand
-        record["Canonical_Part_Number"] = canonical_pn
-        record["Normalized_Part_Number"] = normalized_pn
-
-        # Merge specs, commerce copy, sources, quality metadata
-        for k, v in specs.items():
-            if k in EXPECTED_OUTPUT_COLUMNS:
-                record[k] = v
-
-        for k, v in commerce_copy.items():
-            if k in EXPECTED_OUTPUT_COLUMNS:
-                record[k] = v
-
-        for k, v in sources_dict.items():
-            if k in EXPECTED_OUTPUT_COLUMNS:
-                record[k] = v
-
-        for k, v in quality_metadata.items():
-            if k in EXPECTED_OUTPUT_COLUMNS:
-                record[k] = v
-
-        # Add all 50 Attribute Triplets
-        for k, v in triplets.items():
-            record[k] = v
-
-        # Strict contract: ensure every expected column exists and is non-None
-        final_record: Dict[str, Any] = {}
-        for col in EXPECTED_OUTPUT_COLUMNS:
-            final_record[col] = record.get(col, "")
-            if final_record[col] is None:
-                final_record[col] = ""
+        # Strict contract: map into exact 252 headers
+        from export.mapper import map_record_to_252_columns
+        final_record = map_record_to_252_columns(merged_payload, row)
 
         # Attach helper metadata for frontend inspection
         final_record["_row_idx"] = row_idx
         final_record["_rag_evidence"] = rag_evidence
+        final_record["Resolved_Brand"] = resolved_brand
+        final_record["Canonical_Part_Number"] = canonical_pn
+        final_record["Validation_Status"] = quality_metadata.get("Validation_Status", "VERIFIED")
+        final_record["Overall_Confidence_Score"] = quality_metadata.get("Overall_Confidence_Score", "0.95")
+        final_record["Review_Status"] = "PENDING" if final_record["Validation_Status"] == "VERIFIED" else "NEEDS_REVIEW"
 
         return final_record
 

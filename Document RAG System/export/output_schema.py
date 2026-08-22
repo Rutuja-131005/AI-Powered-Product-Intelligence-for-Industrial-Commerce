@@ -1,41 +1,42 @@
 """
-252-Column Fixed Output Schema Definitions based on TRD Header Groups
+Exact 252-Column Contract Schema Definition
+Strictly defines the 252 static commerce headers in the exact contractual sequence.
 """
 
-from typing import List
+from typing import List, Dict, Any
 
-# Group 1: Source / Identity Input Fields (1–6)
-GROUP_1_SOURCE_INPUT = [
+# Group 1: Source URLs (1-6)
+GROUP_1_SOURCE_URLS = [
+    "MFR URL",
+    "Ref URL 1",
+    "Ref URL 2",
+    "Ref URL 3",
+    "Ref URL 4",
+    "Ref URL 5"
+]
+
+# Group 2: Taxonomy & Core Identifiers (7-23)
+GROUP_2_CORE_IDENTIFIERS = [
+    "PART_NUMBER",
+    "Dept",
+    "Class",
+    "Fine",
+    "SKU - MY_PART_NUMBER",
     "Mfg_Part_Num",
     "Part_Desc",
     "E1_Brand",
     "Unilog_Brand",
     "DIB_Brand",
-    "Part_Manuf"
-]
-
-# Group 2: Core Identifiers & Taxonomy (7–23: 17 columns)
-GROUP_2_CORE_IDENTIFIERS = [
-    "PRODUCT_NAME",
-    "MANUFACTURER",
+    "Part_Manuf",
+    "MANUFACTURER_NAME",
     "BRAND_NAME",
-    "CANONICAL_PART_NUMBER",
-    "NORMALIZED_PART_NUMBER",
-    "PRIMARY_CATEGORY",
-    "SECONDARY_CATEGORY",
-    "TERTIARY_CATEGORY",
-    "CATEGORY_PATH",
-    "UNSPSC_CODE",
-    "UNSPSC_TITLE",
-    "PRODUCT_TYPE",
-    "SERIES_NAME",
-    "MODEL_NUMBER",
-    "UPC",
-    "GTIN",
-    "EAN"
+    "TRADE_NAME",
+    "MANUFACTURER_PART_NUMBER",
+    "ALTERNATE_PART_NUMBER",
+    "Classpath"
 ]
 
-# Group 3: Descriptions (24–29: 6 columns)
+# Group 3: Commerce Descriptions (24-29)
 GROUP_3_DESCRIPTIONS = [
     "MOBILE_DESC",
     "INVOICE_DESC",
@@ -45,98 +46,110 @@ GROUP_3_DESCRIPTIONS = [
     "MARKETING_DESCRIPTION"
 ]
 
-# Group 4: Feature Bullets (30–49: 20 columns)
+# Group 4: 20 Item Feature Bullets (30-49)
 GROUP_4_FEATURES = [f"ITEM_FEATURES_{i}" for i in range(1, 21)]
 
-# Group 5: With / Approvals / Application / Includes / Search (50–55: 6 columns)
-GROUP_5_COMMERCE_METADATA = [
-    "WITH",
-    "APPROVALS_STANDARDS",
-    "APPLICATION",
-    "INCLUDES",
-    "SEARCH_KEYWORDS",
-    "SEO_TITLE"
+# Group 5: Additional Commerce Metadata (50-55)
+GROUP_5_METADATA = [
+    "With",
+    "Standard/Approvals",
+    "Prop 65",
+    "Application",
+    "Includes",
+    "Product Name"
 ]
 
-# Group 6: Attribute Slots 1–50 (56–205: 150 columns)
-GROUP_6_ATTRIBUTES: List[str] = []
+# Group 6: 50 Attribute Triplets (56-205) -> (ATTRIBUTE_LABEL i, ATTRIBUTE_VALUE i, ATTRIBUTE_UOM i)
+GROUP_6_ATTRIBUTES = []
 for i in range(1, 51):
     GROUP_6_ATTRIBUTES.extend([
-        f"ATTR_NAME_{i}",
-        f"ATTR_VALUE_{i}",
-        f"ATTR_UOM_{i}"
+        f"ATTRIBUTE_LABEL {i}",
+        f"ATTRIBUTE_VALUE {i}",
+        f"ATTRIBUTE_UOM {i}"
     ])
 
-# Group 7: Identifiers / Commercial / Packaging / Dimensions (206–224: 19 columns)
-GROUP_7_PHYSICAL_LOGISTICS = [
+# Group 7: Commercial & Dimensions (206-224)
+GROUP_7_COMMERCIAL_DIMENSIONS = [
+    "UPC",
+    "EAN",
+    "GTIN",
+    "UNSPSC",
+    "Warranty",
+    "List Price",
+    "Selling Qty",
+    "Selling UOM",
+    "Standard Packaging Information",
+    "LENGTH",
+    "LENGTH_UOM",
+    "HEIGHT",
+    "HEIGHT_UOM",
+    "WIDTH",
+    "WIDTH_UOM",
     "WEIGHT",
     "WEIGHT_UOM",
-    "LENGTH",
-    "WIDTH",
-    "HEIGHT",
-    "DIMENSION_UOM",
     "VOLUME",
-    "VOLUME_UOM",
-    "PACKAGE_QTY",
-    "PACKAGE_TYPE",
-    "MIN_ORDER_QTY",
-    "LEAD_TIME_DAYS",
-    "HAZARDOUS_MATERIAL",
-    "PROP_65_WARNING",
-    "PROP_65_CHEMICAL",
-    "WARRANTY_YEARS",
-    "WARRANTY_DESC",
-    "NEMA_RATING",
-    "IP_RATING"
+    "VOLUME_UOM"
 ]
 
-# Group 8: Images / Assets / Documents / Ratings (225–249: 25 columns)
-GROUP_8_ASSETS_RATINGS = [
-    "PRIMARY_IMAGE_URL",
-    "IMAGE_URL_2",
-    "IMAGE_URL_3",
-    "THUMBNAIL_URL",
-    "MANUFACTURER_URL",
-    "SPEC_SHEET_URL",
-    "USER_MANUAL_URL",
-    "CAD_DRAWING_URL",
-    "SDS_MSDS_URL",
-    "INSTALLATION_GUIDE_URL",
-    "BROCHURE_URL",
-    "VIDEO_URL",
-    "DISTRIBUTOR_URL_1",
-    "DISTRIBUTOR_URL_2",
-    "REFERENCE_SOURCE_URL",
-    "REPLACES_PART_NUMBER",
-    "ALT_PART_NUMBER",
-    "CROSS_REFERENCE_PART",
-    "VOLTAGE_RATING",
-    "CURRENT_RATING",
-    "POWER_RATING",
-    "TEMP_MIN",
-    "TEMP_MAX",
-    "MATERIAL",
-    "MOUNTING_TYPE"
+# Group 8: Digital Assets & Technical Documents (225-249)
+GROUP_8_ASSETS_DOCUMENTS = [
+    "Product Image",
+    "Alternate Image 1",
+    "Alternate Image 2",
+    "Alternate Image 3",
+    "Alternate Image 4",
+    "SDS",
+    "SDS_1",
+    "Warranty Information",
+    "Catalog",
+    "Specification Sheet",
+    "Instruction/Installation Manual",
+    "Service Manual",
+    "Owners/User Manual",
+    "Line Drawing",
+    "MTR",
+    "RoHS",
+    "Full Engineering Drawing",
+    "Energy Star Guide",
+    "Technical Bulletin",
+    "Submittal",
+    "Compatibility Chart",
+    "Size Chart",
+    "Product Label/Insert",
+    "Video Link",
+    "Video Link 1"
 ]
 
-# Group 9: Country / Discontinued / Image Flag (250–252: 3 columns)
+# Group 9: Operational Flags (250-252)
 GROUP_9_FLAGS = [
-    "COUNTRY_OF_ORIGIN",
-    "DISCONTINUED_STATUS",
-    "IMAGE_FLAG"
+    "Country Of Origin",
+    "Discontinued",
+    "Actual Image (Yes/No)"
 ]
 
-# Exact 252 Output Column Contract
+# Combined Final Contractual 252 Headers in Exact Order
 FINAL_252_HEADERS: List[str] = (
-    GROUP_1_SOURCE_INPUT +
+    GROUP_1_SOURCE_URLS +
     GROUP_2_CORE_IDENTIFIERS +
     GROUP_3_DESCRIPTIONS +
     GROUP_4_FEATURES +
-    GROUP_5_COMMERCE_METADATA +
+    GROUP_5_METADATA +
     GROUP_6_ATTRIBUTES +
-    GROUP_7_PHYSICAL_LOGISTICS +
-    GROUP_8_ASSETS_RATINGS +
+    GROUP_7_COMMERCIAL_DIMENSIONS +
+    GROUP_8_ASSETS_DOCUMENTS +
     GROUP_9_FLAGS
 )
 
-assert len(FINAL_252_HEADERS) == 252, f"Expected 252 headers, got {len(FINAL_252_HEADERS)}"
+# Raw 6 input fields that must be 100% preserved
+ORIGINAL_INPUT_HEADERS = [
+    "Mfg_Part_Num",
+    "Part_Desc",
+    "E1_Brand",
+    "Unilog_Brand",
+    "DIB_Brand",
+    "Part_Manuf"
+]
+
+GROUP_1_SOURCE_INPUT = ORIGINAL_INPUT_HEADERS
+
+assert len(FINAL_252_HEADERS) == 252, f"Header count mismatch: expected 252, got {len(FINAL_252_HEADERS)}"
