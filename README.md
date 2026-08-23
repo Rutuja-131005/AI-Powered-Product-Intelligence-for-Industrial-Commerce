@@ -5,8 +5,6 @@
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-orange.svg)](https://www.trychroma.com/)
 [![Schema Compliance](https://img.shields.io/badge/Contract-252_Columns-brightgreen.svg)]()
 [![Dataset](https://img.shields.io/badge/Dataset-241_Products_Loaded-success.svg)]()
-[![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
-
 ---
 
 # 🌐 ProdIntellix
