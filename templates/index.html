@@ -3,310 +3,369 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Console | AI Product Intelligence</title>
-    
+    <title>ProdIntellix | AI-Powered Product Intelligence</title>
+    <meta name="description" content="ProdIntellix — AI-Powered Product Intelligence for Industrial Commerce. Research any product and get 252-column enriched data, authoritative source links, and 2-sheet Excel exports."/>
+
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-    
+
     <link rel="stylesheet" href="/static/style.css"/>
 </head>
-<body class="bg-surface font-body-md text-on-surface">
+<body>
+<div class="app-layout">
 
-    <div class="app-layout">
-
-        <!-- ================= Fixed Sidebar ================= -->
-        <aside class="app-sidebar">
-            <div class="brand-container">
-                <div class="brand-badge-circle"></div>
-                <div class="brand-details">
-                    <h1 class="brand-title">Console</h1>
-                    <span class="brand-tag">Product Intelligence</span>
-                </div>
+    <!-- ====================================================
+         SIDEBAR
+         ==================================================== -->
+    <aside class="app-sidebar">
+        <!-- Brand -->
+        <div class="brand-container">
+            <img src="/static/logo.png" alt="ProdIntellix Logo" class="brand-logo-img"/>
+            <div class="brand-details">
+                <h1 class="brand-title">ProdIntellix</h1>
+                <span class="brand-tag">AI-Powered Product Intelligence</span>
             </div>
+        </div>
 
-            <!-- Navigation Links -->
-            <nav class="sidebar-nav">
-                <button class="nav-link active" id="nav-btn-input" onclick="switchNavTab('input')">
-                    <span class="material-symbols-outlined nav-icon">input</span>
-                    <span class="nav-label">Product Input</span>
-                </button>
-                <button class="nav-link" id="nav-btn-dashboard" onclick="switchNavTab('dashboard')">
-                    <span class="material-symbols-outlined nav-icon">dashboard</span>
-                    <span class="nav-label">Product Dashboard</span>
-                    <span class="nav-badge success-badge">LIVE</span>
-                </button>
-                <button class="nav-link" id="nav-btn-chat" onclick="switchNavTab('chat')">
-                    <span class="material-symbols-outlined nav-icon">forum</span>
-                    <span class="nav-label">Ask Product AI</span>
-                </button>
-            </nav>
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <span class="sidebar-section-label">Intelligence</span>
+            <button class="nav-link active" id="nav-btn-input" onclick="switchNavTab('input')">
+                <span class="material-symbols-outlined nav-icon">travel_explore</span>
+                <span class="nav-label">Product Research</span>
+            </button>
+            <button class="nav-link" id="nav-btn-dashboard" onclick="switchNavTab('dashboard')">
+                <span class="material-symbols-outlined nav-icon">dashboard</span>
+                <span class="nav-label">Product Dashboard</span>
+                <span class="nav-badge success-badge" id="live-badge">LIVE</span>
+            </button>
 
-            <div class="sidebar-footer">
-                <div class="system-status-indicator">
-                    <div class="status-dot online"></div>
-                    <div class="status-info">
-                        <span class="status-label">Intelligence Engine Active</span>
-                        <span class="status-sub">252-Column Normalizer Ready</span>
+            <span class="sidebar-section-label" style="margin-top:8px;">Tools</span>
+            <button class="nav-link" id="nav-btn-chat" onclick="switchNavTab('chat')">
+                <span class="material-symbols-outlined nav-icon">smart_toy</span>
+                <span class="nav-label">Ask Product AI</span>
+            </button>
+        </nav>
+
+        <!-- Footer / User -->
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">PI</div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name">ProdIntellix</div>
+                    <div class="sidebar-user-role" style="display:flex;align-items:center;gap:3px;">
+                        <span class="status-dot"></span>Intelligence Active
                     </div>
                 </div>
             </div>
-        </aside>
+        </div>
+    </aside>
 
-        <!-- ================= Main Content Container ================= -->
-        <div class="main-content-wrapper">
+    <!-- ====================================================
+         MAIN CONTENT
+         ==================================================== -->
+    <div class="main-content-wrapper">
 
-            <!-- Top Header -->
-            <header class="top-header">
-                <div class="header-breadcrumb">
-                    <span class="crumb-root">PRODUCT INTELLIGENCE</span>
-                    <span class="crumb-separator">/</span>
-                    <span class="crumb-active" id="current-section-title">Product Input Hub</span>
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <div class="header-page-title" id="header-page-title">Product Research</div>
+                <div class="header-page-sub" id="header-page-sub">Enter a product to research across authoritative web sources</div>
+            </div>
+            <div class="header-right">
+                <div class="header-search-bar">
+                    <span class="material-symbols-outlined">search</span>
+                    <input type="text" id="header-search-input" placeholder="Quick search part number..." onkeydown="if(event.key==='Enter'){ document.getElementById('quick-research-input').value=this.value; switchNavTab('input'); executeQuickResearch(); }"/>
                 </div>
-                <div class="header-actions">
-                    <button class="btn btn-outline btn-sm" onclick="switchNavTab('dashboard')">
-                        <span class="material-symbols-outlined text-[16px]">dashboard</span>
-                        Product Dashboard
+                <div class="header-icon-btn" onclick="switchNavTab('dashboard'); loadResearchHistory();" title="Product Dashboard">
+                    <span class="material-symbols-outlined">dashboard</span>
+                </div>
+                <div class="header-icon-btn" title="History" onclick="switchNavTab('dashboard'); loadResearchHistory();">
+                    <span class="material-symbols-outlined">history</span>
+                    <span class="notif-badge" id="history-count-badge" style="display:none;">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ==================================================
+             VIEW 1: PRODUCT RESEARCH / INPUT
+             ================================================== -->
+        <div class="content-view active" id="view-input">
+
+            <div class="view-page-header">
+                <div>
+                    <div class="view-page-title">Product Research Hub</div>
+                    <div class="view-page-sub">Enter any Part Number, Model, or Description — the AI researches manufacturer portals, datasheets, distributor networks, and generates a 2-sheet Excel report.</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-primary" onclick="executeQuickResearch()">
+                        <span class="material-symbols-outlined">travel_explore</span>
+                        Research Product
                     </button>
                 </div>
-            </header>
+            </div>
 
-            <!-- ================= VIEW 1: PRODUCT INPUT & MULTI-WEBSITE RESEARCH ================= -->
-            <main class="content-view active" id="view-input">
-                <header class="view-header">
-                    <div>
-                        <h1 class="view-title">Product Input & Deep Web Research</h1>
-                        <p class="view-subtitle">Input any Product Part Number, Image, or Technical PDF. The system researches multiple websites, enriches 252 columns, and outputs a 2-sheet Excel workbook.</p>
-                    </div>
-                </header>
+            <!-- Main Search Bar -->
+            <div class="main-search-card">
+                <div class="search-tag">
+                    <span class="material-symbols-outlined" style="font-size:13px;">bolt</span>
+                    INSTANT MULTI-WEBSITE RESEARCH
+                </div>
+                <div class="search-bar-row">
+                    <input type="text" id="quick-research-input"
+                        placeholder="Enter Part Number, Product Description, or Model (e.g., Dewalt DCF860B, Diablo D0724R, 140U-J0D3-C40)..."
+                        onkeydown="if(event.key==='Enter') executeQuickResearch()"/>
+                    <button class="btn btn-primary btn-lg" onclick="executeQuickResearch()">
+                        <span class="material-symbols-outlined">travel_explore</span>
+                        RESEARCH WEBSITES
+                    </button>
+                </div>
+            </div>
 
-                <!-- Single Query Deep Research Bar -->
-                <div class="search-research-card">
-                    <span class="input-card-tag">INSTANT MULTI-WEBSITE RESEARCH</span>
-                    <div class="search-bar-row">
-                        <span class="material-symbols-outlined text-outline text-[22px]">search</span>
-                        <input type="text" id="quick-research-input" placeholder="Enter Part Number, Product Description, or Model (e.g., DCF860B, Diablo Cut-Off Disc, 140U-J0D3-C40)..." onkeydown="if(event.key==='Enter') executeQuickResearch()"/>
-                        <button class="btn btn-primary" onclick="executeQuickResearch()">
-                            <span class="material-symbols-outlined text-[18px]">travel_explore</span>
-                            RESEARCH WEBSITES
-                        </button>
-                    </div>
+            <!-- Upload Cards -->
+            <div class="upload-grid-layout">
+                <div class="upload-card" onclick="document.getElementById('image-file-input').click()">
+                    <span class="material-symbols-outlined upload-card-icon">photo_camera</span>
+                    <div class="upload-card-title">Upload Product Image</div>
+                    <div class="upload-card-desc">Visual OCR, label extraction, multi-website research & instant Product Dashboard.</div>
+                    <input type="file" id="image-file-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)"/>
+                    <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();document.getElementById('image-file-input').click()">SELECT IMAGE</button>
                 </div>
 
-                <!-- Multimodal Dropzones (Image, PDF, Bulk File) -->
-                <div class="upload-grid-layout" style="margin-top: 24px;">
-                    <!-- Image Ingestion Dropzone -->
-                    <div class="upload-card" onclick="triggerInput('image-file-input')">
-                        <span class="material-symbols-outlined upload-card-icon">photo_camera</span>
-                        <h3 class="upload-card-title">Upload Product Image</h3>
-                        <p class="upload-card-desc">Visual OCR, label extraction, multi-website research & instant dashboard preview.</p>
-                        <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)"/>
-                        <button class="btn btn-primary btn-sm">SELECT IMAGE</button>
-                    </div>
-
-                    <!-- PDF Ingestion Dropzone -->
-                    <div class="upload-card" onclick="triggerInput('pdf-file-input')">
-                        <span class="material-symbols-outlined upload-card-icon">picture_as_pdf</span>
-                        <h3 class="upload-card-title">Upload Spec PDF</h3>
-                        <p class="upload-card-desc">Parse technical datasheets, CAD drawings, manuals, and extract 50 attribute triplets.</p>
-                        <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;" onchange="handlePdfUpload(event)"/>
-                        <button class="btn btn-secondary btn-sm">SELECT PDF</button>
-                    </div>
-
-                    <!-- Bulk Dataset Ingestion Dropzone -->
-                    <div class="upload-card" onclick="triggerInput('csv-file-input')">
-                        <span class="material-symbols-outlined upload-card-icon">table_view</span>
-                        <h3 class="upload-card-title">Upload Batch Catalog</h3>
-                        <p class="upload-card-desc">Process multiple sparse industrial parts and populate intelligence records.</p>
-                        <input type="file" id="csv-file-input" accept=".csv,.xlsx,.xls" style="display: none;" onchange="handleCsvUpload(event)"/>
-                        <button class="btn btn-outline btn-sm">SELECT DATASET</button>
-                    </div>
+                <div class="upload-card" onclick="document.getElementById('pdf-file-input').click()">
+                    <span class="material-symbols-outlined upload-card-icon">picture_as_pdf</span>
+                    <div class="upload-card-title">Upload Spec PDF</div>
+                    <div class="upload-card-desc">Parse technical datasheets, CAD drawings, manuals & extract 252-column attributes.</div>
+                    <input type="file" id="pdf-file-input" accept=".pdf" style="display:none;" onchange="handlePdfUpload(event)"/>
+                    <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();document.getElementById('pdf-file-input').click()">SELECT PDF</button>
                 </div>
 
-                <!-- Live Research Results & Multi-Website Links Card -->
-                <div class="research-results-container" id="research-results-box" style="display: none; margin-top: 28px;">
-                    <div class="results-header-bar">
+                <div class="upload-card" onclick="document.getElementById('csv-file-input').click()">
+                    <span class="material-symbols-outlined upload-card-icon">table_view</span>
+                    <div class="upload-card-title">Bulk Batch Catalog</div>
+                    <div class="upload-card-desc">Process multiple sparse industrial products and enrich into 252 contractual columns.</div>
+                    <input type="file" id="csv-file-input" accept=".csv,.xlsx,.xls" style="display:none;" onchange="handleCsvUpload(event)"/>
+                    <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();document.getElementById('csv-file-input').click()">SELECT DATASET</button>
+                </div>
+            </div>
+
+            <!-- Research Results -->
+            <div id="research-results-box" style="display:none;">
+                <div class="results-panel">
+                    <div class="results-top-bar">
                         <div>
-                            <span class="badge-pill success">RESEARCH COMPLETE</span>
-                            <h2 class="font-headline-sm" id="res-product-title" style="margin-top: 6px;">Product Identity</h2>
-                            <p class="text-muted" id="res-product-sub"></p>
+                            <div class="results-badge">RESEARCH COMPLETE — PRODUCT INTELLIGENCE READY</div>
+                            <div class="results-title" id="res-product-title">Product Identity</div>
+                            <div class="results-sub" id="res-product-sub"></div>
                         </div>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <button class="btn btn-primary btn-sm" onclick="switchNavTab('dashboard')">
-                                <span class="material-symbols-outlined text-[16px]">dashboard</span>
-                                VIEW PRODUCT DASHBOARD
+                        <div class="results-action-btns">
+                            <button class="btn btn-white btn-sm" onclick="switchNavTab('dashboard')">
+                                <span class="material-symbols-outlined">dashboard</span>
+                                VIEW DASHBOARD
                             </button>
-                            <button class="btn btn-secondary btn-sm" onclick="downloadCurrentProductExcel()">
-                                <span class="material-symbols-outlined text-[16px]">download</span>
+                            <button class="btn btn-white btn-sm" onclick="downloadCurrentProductExcel()">
+                                <span class="material-symbols-outlined">download</span>
                                 2-SHEET EXCEL
                             </button>
                         </div>
                     </div>
-
-                    <!-- Discovered Multi-Website Research Links Grid -->
-                    <div class="research-links-section">
-                        <h3 class="section-heading-sm">DISCOVERED MULTI-WEBSITE RESEARCH SOURCES:</h3>
-                        <div class="links-cards-grid" id="res-links-grid">
-                            <!-- Populated via JS -->
-                        </div>
+                    <div class="results-body">
+                        <div class="section-heading">DISCOVERED MULTI-WEBSITE RESEARCH SOURCES</div>
+                        <div class="links-cards-grid" id="res-links-grid"></div>
                     </div>
                 </div>
-            </main>
+            </div>
+        </div><!-- /view-input -->
 
-            <!-- ================= VIEW 2: PRODUCT DASHBOARD (PRIMARY INTELLIGENCE VIEW) ================= -->
-            <main class="content-view" id="view-dashboard">
-                <header class="view-header">
-                    <div>
-                        <h1 class="view-title">Product Intelligence Dashboard</h1>
-                        <p class="view-subtitle">Live intelligence for the current searched product, 2-sheet Excel exports, and historical research repository.</p>
-                    </div>
-                    <div class="view-actions">
-                        <button class="btn btn-primary" onclick="downloadCurrentProductExcel()">
-                            <span class="material-symbols-outlined text-[18px]">table_view</span>
-                            DOWNLOAD 2-SHEET EXCEL (.XLSX)
-                        </button>
-                        <button class="btn btn-secondary" onclick="syncCurrentProductToSheets()">
-                            <span class="material-symbols-outlined text-[18px]">sync</span>
-                            SYNC TO GOOGLE SHEETS
-                        </button>
-                    </div>
-                </header>
+        <!-- ==================================================
+             VIEW 2: PRODUCT DASHBOARD
+             ================================================== -->
+        <div class="content-view" id="view-dashboard">
 
-                <!-- Current Searched Product Hero Widget -->
-                <div class="product-hero-card" id="product-hero-widget">
-                    <div id="hero-empty-state" style="padding: 40px 20px; text-align: center;">
-                        <span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary); opacity: 0.7;">manage_search</span>
-                        <h3 style="margin-top: 12px; font-size: 18px;">No Product Researched Yet</h3>
-                        <p class="text-muted" style="margin-top: 4px;">Enter a part number in Product Input or select a previous search from History below.</p>
-                        <button class="btn btn-primary btn-sm" style="margin-top: 16px;" onclick="switchNavTab('input')">
-                            <span class="material-symbols-outlined text-[16px]">search</span>
-                            GO TO PRODUCT SEARCH
-                        </button>
-                    </div>
+            <div class="view-page-header">
+                <div>
+                    <div class="view-page-title">Product Intelligence Dashboard</div>
+                    <div class="view-page-sub">Current product intelligence, 2-sheet Excel export, and complete research history.</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-primary" onclick="downloadCurrentProductExcel()">
+                        <span class="material-symbols-outlined">table_view</span>
+                        DOWNLOAD 2-SHEET EXCEL
+                    </button>
+                    <button class="btn btn-outline" onclick="syncCurrentProductToSheets()">
+                        <span class="material-symbols-outlined">sync</span>
+                        SYNC TO SHEETS
+                    </button>
+                    <button class="btn btn-ghost" onclick="switchNavTab('input')">
+                        <span class="material-symbols-outlined">add</span>
+                        New Research
+                    </button>
+                </div>
+            </div>
 
-                    <div id="hero-active-content" style="display: none;">
-                        <!-- Product Title & Identity Banner -->
-                        <div class="hero-top-row">
-                            <div>
-                                <div class="hero-tags-row">
-                                    <span class="badge-pill brand" id="hero-brand">BRAND</span>
-                                    <span class="badge-pill verified" id="hero-status"><span class="pulse-dot"></span> VERIFIED</span>
-                                    <span class="badge-pill confidence" id="hero-confidence">98% CONFIDENCE</span>
-                                </div>
-                                <h2 class="hero-title" id="hero-title">Product Name & Specifications</h2>
-                                <div class="hero-meta-grid">
-                                    <div><span class="meta-label">MANUFACTURER PART #:</span> <span class="meta-val font-mono" id="hero-mpn">---</span></div>
-                                    <div><span class="meta-label">RESOLVED BRAND:</span> <span class="meta-val" id="hero-brand-name">---</span></div>
-                                    <div><span class="meta-label">MANUFACTURER:</span> <span class="meta-val" id="hero-manufacturer">---</span></div>
-                                    <div><span class="meta-label">CATEGORY:</span> <span class="meta-val" id="hero-category">---</span></div>
-                                </div>
+            <!-- CURRENT PRODUCT AREA -->
+            <div id="hero-empty-state" class="empty-state-box">
+                <span class="material-symbols-outlined">manage_search</span>
+                <h3>No Product Researched Yet</h3>
+                <p>Enter a part number in Product Research to get started. The results will appear here with full 252-column intelligence and a downloadable 2-sheet Excel report.</p>
+                <button class="btn btn-primary" onclick="switchNavTab('input')">
+                    <span class="material-symbols-outlined">travel_explore</span>
+                    START RESEARCHING
+                </button>
+            </div>
+
+            <div id="hero-active-content" style="display:none;">
+                <!-- Hero Product Card -->
+                <div class="product-hero-card">
+                    <div class="hero-header-strip">
+                        <div style="flex-grow:1;">
+                            <div class="hero-tags-row">
+                                <span class="badge-pill brand" id="hero-brand-badge">BRAND</span>
+                                <span class="badge-pill verified"><span class="pulse-dot"></span> VERIFIED</span>
+                                <span class="badge-pill confidence" id="hero-confidence-badge">97% CONFIDENCE</span>
                             </div>
+                            <div class="hero-title" id="hero-title">Product Intelligence Ready</div>
+                        </div>
+                        <div class="hero-action-bar">
+                            <button class="btn btn-white btn-sm" onclick="downloadCurrentProductExcel()">
+                                <span class="material-symbols-outlined">download</span>
+                                2-SHEET EXCEL (.XLSX)
+                            </button>
+                            <button class="btn btn-white btn-sm" onclick="syncCurrentProductToSheets()">
+                                <span class="material-symbols-outlined">sync</span>
+                                SYNC TO SHEETS
+                            </button>
+                        </div>
+                    </div>
+                    <div class="hero-body">
+                        <!-- Identity Grid -->
+                        <div class="section-heading">PRODUCT IDENTITY</div>
+                        <div class="hero-meta-grid" id="hero-meta-grid">
+                            <div class="meta-item"><div class="meta-label">MFG PART NUMBER</div><div class="meta-val font-mono" id="hero-mpn">---</div></div>
+                            <div class="meta-item"><div class="meta-label">RESOLVED BRAND</div><div class="meta-val" id="hero-brand-name">---</div></div>
+                            <div class="meta-item"><div class="meta-label">MANUFACTURER</div><div class="meta-val" id="hero-manufacturer">---</div></div>
+                            <div class="meta-item"><div class="meta-label">CATEGORY</div><div class="meta-val" id="hero-category">---</div></div>
+                            <div class="meta-item"><div class="meta-label">UNSPSC CODE</div><div class="meta-val font-mono" id="hero-unspsc">---</div></div>
+                            <div class="meta-item"><div class="meta-label">VALIDATION STATUS</div><div class="meta-val text-success" id="hero-validation">VERIFIED</div></div>
                         </div>
 
-                        <!-- 2-Sheet Excel Export Notice Banner -->
+                        <!-- 2-Sheet Notice -->
                         <div class="excel-notice-card">
                             <div class="excel-notice-icon">
                                 <span class="material-symbols-outlined">description</span>
                             </div>
                             <div class="excel-notice-body">
-                                <h4>2-Sheet Excel Export Available for this Product</h4>
-                                <p>Sheet 1: <strong>Product Details</strong> (252 commerce attributes) | Sheet 2: <strong>Search Links</strong> (all authoritative portals & datasheets).</p>
+                                <h4>2-Sheet Excel Workbook Ready for This Product</h4>
+                                <p><strong>Sheet 1: Product Details</strong> (252 contractual columns) &nbsp;|&nbsp; <strong>Sheet 2: Search &amp; Source Links</strong> (all discovered authoritative URLs)</p>
                             </div>
                             <button class="btn btn-primary btn-sm" onclick="downloadCurrentProductExcel()">
-                                <span class="material-symbols-outlined text-[16px]">download</span>
+                                <span class="material-symbols-outlined">download</span>
                                 EXPORT (.XLSX)
                             </button>
                         </div>
 
-                        <!-- Discovered Research Sources on Dashboard -->
-                        <div class="dashboard-section" style="margin-top: 24px;">
-                            <h3 class="section-heading-sm">DISCOVERED MULTI-WEBSITE RESEARCH SOURCES:</h3>
+                        <!-- Research Links -->
+                        <div class="dashboard-section">
+                            <div class="section-heading">DISCOVERED MULTI-WEBSITE RESEARCH SOURCES</div>
                             <div class="links-cards-grid" id="dashboard-links-grid">
-                                <!-- Populated dynamically -->
+                                <div style="grid-column:1/-1;color:var(--text-muted);font-size:13px;">Research a product to see discovered links here.</div>
                             </div>
                         </div>
 
-                        <!-- Key Specifications Matrix -->
-                        <div class="dashboard-section" style="margin-top: 24px;">
-                            <h3 class="section-heading-sm">EXTRACTED TECHNICAL SPECIFICATIONS:</h3>
+                        <!-- Technical Specs -->
+                        <div class="dashboard-section" style="margin-top:24px;">
+                            <div class="section-heading">EXTRACTED TECHNICAL SPECIFICATIONS</div>
                             <div class="specs-pill-grid" id="dashboard-specs-grid">
-                                <!-- Populated dynamically -->
+                                <div style="grid-column:1/-1;color:var(--text-muted);font-size:13px;">Technical specifications will appear here after researching a product.</div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div><!-- /hero-active-content -->
 
-                <!-- Research History Section -->
-                <div class="history-card" style="margin-top: 32px;">
-                    <div class="history-header-row">
-                        <div>
-                            <h3 class="pipeline-title">Research History (Previous Searches)</h3>
-                            <p class="text-muted" style="font-size: 13px;">Click on any previous product research to view its intelligence details on the dashboard.</p>
-                        </div>
-                        <button class="btn btn-outline btn-sm" onclick="loadResearchHistory()">
-                            <span class="material-symbols-outlined text-[16px]">refresh</span>
-                            REFRESH HISTORY
-                        </button>
+            <!-- RESEARCH HISTORY -->
+            <div class="history-card">
+                <div class="history-header-row">
+                    <div class="history-header-left">
+                        <h3>Research History</h3>
+                        <p>All previous product research sessions — click VIEW or XLSX to access any past result.</p>
                     </div>
+                    <button class="btn btn-outline btn-sm" onclick="loadResearchHistory()">
+                        <span class="material-symbols-outlined">refresh</span>
+                        Refresh
+                    </button>
+                </div>
+                <div class="history-table-wrapper">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>PART NUMBER</th>
+                                <th>BRAND</th>
+                                <th>PRODUCT NAME</th>
+                                <th>CATEGORY</th>
+                                <th>SOURCE</th>
+                                <th>CONFIDENCE</th>
+                                <th>RESEARCHED AT</th>
+                                <th style="text-align:right;">ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <tr class="history-empty-row">
+                                <td colspan="8">No research history yet. Start researching a product above.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                    <div class="history-table-wrapper" style="margin-top: 16px;">
-                        <table class="history-table">
-                            <thead>
-                                <tr>
-                                    <th>PART NUMBER</th>
-                                    <th>BRAND</th>
-                                    <th>PRODUCT TITLE</th>
-                                    <th>CATEGORY</th>
-                                    <th>CONFIDENCE</th>
-                                    <th>TIME</th>
-                                    <th style="text-align: right;">ACTION</th>
-                                </tr>
-                            </thead>
-                            <tbody id="history-table-body">
-                                <tr>
-                                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">
-                                        Loading research history...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+        </div><!-- /view-dashboard -->
+
+        <!-- ==================================================
+             VIEW 3: ASK PRODUCT AI
+             ================================================== -->
+        <div class="content-view" id="view-chat">
+            <div class="view-page-header">
+                <div>
+                    <div class="view-page-title">Ask Product AI</div>
+                    <div class="view-page-sub">Ground-truth RAG assistant — ask anything about researched products, specs, compatibility, or catalog data.</div>
+                </div>
+            </div>
+
+            <div class="chat-wrapper">
+                <div class="chat-messages-container" id="chat-messages-box">
+                    <div class="chat-message bot">
+                        <div class="chat-avatar">AI</div>
+                        <div class="chat-content">
+                            Hello! I'm your ProdIntellix AI assistant. Ask me anything about researched products, technical specifications, manufacturer details, or compatibility questions.
+                        </div>
                     </div>
                 </div>
-            </main>
-
-            <!-- ================= VIEW 3: ASK PRODUCT AI ================= -->
-            <main class="content-view" id="view-chat">
-                <header class="view-header">
-                    <div>
-                        <h1 class="view-title">Ask Product AI</h1>
-                        <p class="view-subtitle">Ground-truth conversational RAG answering questions against researched datasheets, manuals, and catalog records.</p>
-                    </div>
-                </header>
-
-                <div class="chat-wrapper">
-                    <div class="chat-messages-container" id="chat-messages-box">
-                        <div class="chat-message bot">
-                            <div class="chat-avatar">AI</div>
-                            <div class="chat-content">
-                                <p>Hello! I am your Industrial Intelligence Assistant. Ask any question regarding researched part numbers, multi-website specs, compatibility, or catalog records.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="chat-input-bar">
-                        <input type="text" id="rag-input-text" placeholder="e.g., What are the voltage and dimension specifications for Diablo cut-off discs or Milwaukee accessories?" onkeydown="if(event.key==='Enter') sendChatQuery()"/>
-                        <button class="btn btn-primary" onclick="sendChatQuery()">
-                            <span class="material-symbols-outlined">send</span>
-                        </button>
-                    </div>
+                <div class="chat-input-bar">
+                    <input type="text" id="rag-input-text"
+                        placeholder="e.g., What are the voltage specs for Dewalt DCF860B? Is it compatible with Milwaukee batteries?"
+                        onkeydown="if(event.key==='Enter') sendChatQuery()"/>
+                    <button class="btn btn-primary" onclick="sendChatQuery()">
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
                 </div>
-            </main>
+            </div>
+        </div><!-- /view-chat -->
 
-        </div>
+    </div><!-- /main-content-wrapper -->
+</div><!-- /app-layout -->
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading-overlay" style="display:none;">
+    <div class="loading-card">
+        <div class="spinner"></div>
+        <h3 id="loading-title">Researching Product...</h3>
+        <p id="loading-sub">Querying manufacturer portals, datasheets, and distributor networks</p>
     </div>
+</div>
 
-    <script src="/static/script.js"></script>
+<script src="/static/script.js"></script>
 </body>
 </html>
