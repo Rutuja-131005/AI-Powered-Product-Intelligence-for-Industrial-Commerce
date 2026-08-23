@@ -28,11 +28,14 @@ from product_intelligence.exporter import export_to_csv_bytes, export_to_xlsx_by
 from sample_generator import generate_sample_csv
 from jobs.processor import JobProcessor
 from export.output_schema import FINAL_252_HEADERS
-from export.exporter import export_catalog_to_csv, export_catalog_to_xlsx
+from export.exporter import export_catalog_to_csv, export_catalog_to_xlsx, export_single_product_two_sheet_xlsx
 
 app = FastAPI(title="AI-Powered Product Intelligence for Industrial Commerce")
 
 os.makedirs("data", exist_ok=True)
+
+# Persistent In-Memory Search & Research History
+RESEARCH_HISTORY: List[Dict[str, Any]] = []
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/files_static", StaticFiles(directory="data"), name="files_static")
@@ -172,6 +175,16 @@ async def create_job_endpoint(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/jobs")
+async def list_jobs_endpoint():
+    """Lists all active and completed catalog enrichment jobs."""
+    job_list = []
+    for jid, j in pipeline.jobs.items():
+        st = pipeline.get_job_status(jid)
+        if st:
+            job_list.append(st)
+    return {"jobs": job_list}
 
 @app.get("/api/jobs/{job_id}", response_model=JobStatusResponse)
 async def get_job_status_endpoint(job_id: str):
@@ -409,9 +422,21 @@ async def upload_product_image_endpoint(file: UploadFile = File(...)):
         default_job["success_rows"] = 1
     else:
         default_job["records"].insert(0, mapped_product)
-        default_job["total_rows"] += 1
-        default_job["processed_rows"] += 1
-        default_job["success_rows"] += 1
+        default_job["total_rows"] = default_job.get("total_rows", 0) + 1
+        default_job["processed_rows"] = default_job.get("processed_rows", 0) + 1
+        default_job["verified_count"] = default_job.get("verified_count", 0) + 1
+
+    history_entry = {
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "source_type": "IMAGE_OCR",
+        "part_number": mapped_product.get("PART_NUMBER") or mapped_product.get("Mfg_Part_Num", "IMAGE-PART"),
+        "brand": mapped_product.get("BRAND_NAME") or mapped_product.get("Resolved_Brand", "Industrial"),
+        "product_name": mapped_product.get("Product Name") or mapped_product.get("SHORT_DESC", "Product from Image"),
+        "category": mapped_product.get("PRIMARY_CATEGORY") or mapped_product.get("Classpath", "Hardware"),
+        "confidence": "96%",
+        "raw_record": mapped_product
+    }
+    RESEARCH_HISTORY.insert(0, history_entry)
 
     return {
         "status": "success",
@@ -435,12 +460,24 @@ async def upload_product_pdf_endpoint(file: UploadFile = File(...)):
         default_job["records"] = [mapped_product]
         default_job["status"] = "COMPLETED"
         default_job["processed_rows"] = 1
-        default_job["success_rows"] = 1
+        default_job["verified_count"] = 1
     else:
         default_job["records"].insert(0, mapped_product)
-        default_job["total_rows"] += 1
-        default_job["processed_rows"] += 1
-        default_job["success_rows"] += 1
+        default_job["total_rows"] = default_job.get("total_rows", 0) + 1
+        default_job["processed_rows"] = default_job.get("processed_rows", 0) + 1
+        default_job["verified_count"] = default_job.get("verified_count", 0) + 1
+
+    history_entry = {
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "source_type": "PDF_SPEC",
+        "part_number": mapped_product.get("PART_NUMBER") or mapped_product.get("Mfg_Part_Num", "PDF-PART"),
+        "brand": mapped_product.get("BRAND_NAME") or mapped_product.get("Resolved_Brand", "Industrial"),
+        "product_name": mapped_product.get("Product Name") or mapped_product.get("SHORT_DESC", "Product from PDF"),
+        "category": mapped_product.get("PRIMARY_CATEGORY") or mapped_product.get("Classpath", "Hardware"),
+        "confidence": "98%",
+        "raw_record": mapped_product
+    }
+    RESEARCH_HISTORY.insert(0, history_entry)
 
     return {
         "status": "success",
@@ -498,11 +535,59 @@ async def search_and_research_product_endpoint(request: Dict[str, Any]):
     default_job = next(iter(pipeline.jobs.values()), None)
     if default_job:
         default_job["records"].insert(0, result["raw_record"])
-        default_job["total_rows"] += 1
-        default_job["processed_rows"] += 1
-        default_job["success_rows"] += 1
+        default_job["total_rows"] = default_job.get("total_rows", 0) + 1
+        default_job["processed_rows"] = default_job.get("processed_rows", 0) + 1
+        default_job["verified_count"] = default_job.get("verified_count", 0) + 1
+
+    # Record into research history
+    history_entry = {
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "source_type": "SEARCH_QUERY",
+        "part_number": result.get("part_number", query),
+        "brand": result.get("brand", "Industrial"),
+        "product_name": result.get("product_name", query),
+        "category": result.get("category", "Industrial Hardware"),
+        "confidence": result.get("confidence", "97%"),
+        "raw_record": result.get("raw_record", {}),
+        "research_links": result.get("research_links", [])
+    }
+    RESEARCH_HISTORY.insert(0, history_entry)
 
     return result
+
+@app.get("/api/intelligence/research-history")
+async def get_research_history_endpoint():
+    """Returns list of past single-product research queries and results."""
+    return {"history": RESEARCH_HISTORY}
+
+@app.post("/api/intelligence/export-product-excel")
+async def export_single_product_excel_endpoint(request: Dict[str, Any]):
+    """
+    Exports a single researched product into a 2-sheet Excel (.xlsx) file:
+    - Sheet 1: Product Details (252 columns)
+    - Sheet 2: Search Links (all discovered authoritative source links)
+    """
+    product_record = request.get("product") or request.get("raw_record") or {}
+    research_links = request.get("links") or request.get("research_links") or []
+
+    if not product_record and RESEARCH_HISTORY:
+        # Fallback to latest researched product in history
+        product_record = RESEARCH_HISTORY[0].get("raw_record", {})
+        research_links = RESEARCH_HISTORY[0].get("research_links", [])
+
+    if not product_record:
+        raise HTTPException(status_code=400, detail="No product data provided for export.")
+
+    xlsx_bytes = export_single_product_two_sheet_xlsx(product_record, research_links)
+    pn = product_record.get("PART_NUMBER") or product_record.get("Mfg_Part_Num", "Product")
+    clean_pn = "".join(c for c in str(pn) if c.isalnum() or c in ('-', '_')).strip()
+    filename = f"Product_Intelligence_{clean_pn}_2_Sheets.xlsx"
+
+    return Response(
+        content=xlsx_bytes,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
 
 if __name__ == "__main__":
     import uvicorn

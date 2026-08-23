@@ -26,30 +26,25 @@ class GoogleSheetsSync:
         # Build exact 252-column ordered value array
         row_values = [str(product_record.get(header, "") or "") for header in FINAL_252_HEADERS]
 
-        # Extract all research links for direct analysis link indexing
-        analysis_links = [
-            product_record.get("MFR URL", ""),
-            product_record.get("Ref URL 1", ""),
-            product_record.get("Ref URL 2", ""),
-            product_record.get("Ref URL 3", ""),
-            product_record.get("Ref URL 4", ""),
-            product_record.get("Ref URL 5", ""),
-            product_record.get("Specification Sheet", ""),
-            product_record.get("Instruction/Installation Manual", ""),
-            product_record.get("Service Manual", ""),
-            product_record.get("Owners/User Manual", ""),
-            product_record.get("Line Drawing", ""),
-            product_record.get("Full Engineering Drawing", ""),
-            product_record.get("SDS", ""),
-            product_record.get("SDS_1", ""),
-            product_record.get("Catalog", ""),
-            product_record.get("Video Link", ""),
-            product_record.get("Video Link 1", "")
+        # Extract all research links with categories for 2-sheet backend sync
+        raw_link_tuples = [
+            ("Manufacturer Official Portal", product_record.get("MFR URL", ""), "Manufacturer"),
+            ("Technical Datasheet / Spec Sheet", product_record.get("Specification Sheet", ""), "Datasheet PDF"),
+            ("User Installation & Safety Manual", product_record.get("Instruction/Installation Manual", ""), "Manual"),
+            ("3D CAD / Line Drawing", product_record.get("Line Drawing", ""), "CAD Model"),
+            ("Safety Data Sheet (SDS)", product_record.get("SDS", ""), "Compliance"),
+            ("Distributor Reference 1", product_record.get("Ref URL 1", ""), "Distributor"),
+            ("Distributor Reference 2", product_record.get("Ref URL 2", ""), "Distributor"),
+            ("Catalog Reference Portal", product_record.get("Ref URL 3", ""), "Catalog")
         ]
-        analysis_links = [link for link in analysis_links if link]
+        structured_links = [
+            {"label": label, "url": url, "category": cat}
+            for label, url, cat in raw_link_tuples if url
+        ]
+        analysis_links = [lnk["url"] for lnk in structured_links]
 
         payload = {
-            "action": "append_product",
+            "action": "append_product_with_links",
             "spreadsheet_id": "1fFNeblk0kyz4_aOsUHHiMOxqVVaZYLd9lsE5GYq7Xoc",
             "headers": FINAL_252_HEADERS,
             "row_values": row_values,
@@ -63,6 +58,9 @@ class GoogleSheetsSync:
             "confidence": product_record.get("Overall_Confidence_Score", "0.95"),
             "validation_status": product_record.get("Validation_Status", "VERIFIED"),
             "analysis_links": analysis_links,
+            "structured_links": structured_links,
+            "sheet_1_name": "Product Details",
+            "sheet_2_name": "Search Links",
             "data": {h: product_record.get(h, "") for h in FINAL_252_HEADERS}
         }
 

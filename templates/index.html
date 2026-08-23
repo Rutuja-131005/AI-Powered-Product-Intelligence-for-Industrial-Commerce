@@ -34,13 +34,9 @@
                     <span class="nav-label">Product Input</span>
                 </button>
                 <button class="nav-link" id="nav-btn-dashboard" onclick="switchNavTab('dashboard')">
-                    <span class="material-symbols-outlined nav-icon">analytics</span>
-                    <span class="nav-label">Batch Telemetry</span>
-                </button>
-                <button class="nav-link" id="nav-btn-sheets" onclick="switchNavTab('sheets')">
-                    <span class="material-symbols-outlined nav-icon">database</span>
-                    <span class="nav-label">Database Repository</span>
-                    <span class="nav-badge success-badge">ACTIVE</span>
+                    <span class="material-symbols-outlined nav-icon">dashboard</span>
+                    <span class="nav-label">Product Dashboard</span>
+                    <span class="nav-badge success-badge">LIVE</span>
                 </button>
                 <button class="nav-link" id="nav-btn-chat" onclick="switchNavTab('chat')">
                     <span class="material-symbols-outlined nav-icon">forum</span>
@@ -52,8 +48,8 @@
                 <div class="system-status-indicator">
                     <div class="status-dot online"></div>
                     <div class="status-info">
-                        <span class="status-label">Database Connected</span>
-                        <span class="status-sub">Dataset Repository Active</span>
+                        <span class="status-label">Intelligence Engine Active</span>
+                        <span class="status-sub">252-Column Normalizer Ready</span>
                     </div>
                 </div>
             </div>
@@ -70,19 +66,19 @@
                     <span class="crumb-active" id="current-section-title">Product Input Hub</span>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-outline btn-sm" onclick="switchNavTab('sheets')">
-                        <span class="material-symbols-outlined text-[16px]">database</span>
-                        Database Repository
+                    <button class="btn btn-outline btn-sm" onclick="switchNavTab('dashboard')">
+                        <span class="material-symbols-outlined text-[16px]">dashboard</span>
+                        Product Dashboard
                     </button>
                 </div>
             </header>
 
-            <!-- ================= VIEW 1: PRODUCT INPUT & MULTI-WEBSITE RESEARCH (PRIMARY VIEW) ================= -->
+            <!-- ================= VIEW 1: PRODUCT INPUT & MULTI-WEBSITE RESEARCH ================= -->
             <main class="content-view active" id="view-input">
                 <header class="view-header">
                     <div>
                         <h1 class="view-title">Product Input & Deep Web Research</h1>
-                        <p class="view-subtitle">Input any Product Image, Technical PDF, or Part Number. The system researches multiple websites and automatically enriches attributes into the master database.</p>
+                        <p class="view-subtitle">Input any Product Part Number, Image, or Technical PDF. The system researches multiple websites, enriches 252 columns, and outputs a 2-sheet Excel workbook.</p>
                     </div>
                 </header>
 
@@ -91,7 +87,7 @@
                     <span class="input-card-tag">INSTANT MULTI-WEBSITE RESEARCH</span>
                     <div class="search-bar-row">
                         <span class="material-symbols-outlined text-outline text-[22px]">search</span>
-                        <input type="text" id="quick-research-input" placeholder="Enter Part Number, Product Description, or Model (e.g., 3MABR-7100075678, Diablo Cut-Off Disc, Dewalt DCF860B)..." onkeydown="if(event.key==='Enter') executeQuickResearch()"/>
+                        <input type="text" id="quick-research-input" placeholder="Enter Part Number, Product Description, or Model (e.g., DCF860B, Diablo Cut-Off Disc, 140U-J0D3-C40)..." onkeydown="if(event.key==='Enter') executeQuickResearch()"/>
                         <button class="btn btn-primary" onclick="executeQuickResearch()">
                             <span class="material-symbols-outlined text-[18px]">travel_explore</span>
                             RESEARCH WEBSITES
@@ -105,7 +101,7 @@
                     <div class="upload-card" onclick="triggerInput('image-file-input')">
                         <span class="material-symbols-outlined upload-card-icon">photo_camera</span>
                         <h3 class="upload-card-title">Upload Product Image</h3>
-                        <p class="upload-card-desc">Visual OCR, label identification, multi-website research & auto-save to database repository.</p>
+                        <p class="upload-card-desc">Visual OCR, label extraction, multi-website research & instant dashboard preview.</p>
                         <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)"/>
                         <button class="btn btn-primary btn-sm">SELECT IMAGE</button>
                     </div>
@@ -114,7 +110,7 @@
                     <div class="upload-card" onclick="triggerInput('pdf-file-input')">
                         <span class="material-symbols-outlined upload-card-icon">picture_as_pdf</span>
                         <h3 class="upload-card-title">Upload Spec PDF</h3>
-                        <p class="upload-card-desc">Parse technical datasheets, CAD drawings, manuals, and push attributes to database repository.</p>
+                        <p class="upload-card-desc">Parse technical datasheets, CAD drawings, manuals, and extract 50 attribute triplets.</p>
                         <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;" onchange="handlePdfUpload(event)"/>
                         <button class="btn btn-secondary btn-sm">SELECT PDF</button>
                     </div>
@@ -123,7 +119,7 @@
                     <div class="upload-card" onclick="triggerInput('csv-file-input')">
                         <span class="material-symbols-outlined upload-card-icon">table_view</span>
                         <h3 class="upload-card-title">Upload Batch Catalog</h3>
-                        <p class="upload-card-desc">Bulk process sparse industrial items and populate backend database silently.</p>
+                        <p class="upload-card-desc">Process multiple sparse industrial parts and populate intelligence records.</p>
                         <input type="file" id="csv-file-input" accept=".csv,.xlsx,.xls" style="display: none;" onchange="handleCsvUpload(event)"/>
                         <button class="btn btn-outline btn-sm">SELECT DATASET</button>
                     </div>
@@ -137,9 +133,15 @@
                             <h2 class="font-headline-sm" id="res-product-title" style="margin-top: 6px;">Product Identity</h2>
                             <p class="text-muted" id="res-product-sub"></p>
                         </div>
-                        <div class="database-synced-badge">
-                            <span class="material-symbols-outlined text-success">check_circle</span>
-                            <span>Saved to Backend Database Repository</span>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button class="btn btn-primary btn-sm" onclick="switchNavTab('dashboard')">
+                                <span class="material-symbols-outlined text-[16px]">dashboard</span>
+                                VIEW PRODUCT DASHBOARD
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="downloadCurrentProductExcel()">
+                                <span class="material-symbols-outlined text-[16px]">download</span>
+                                2-SHEET EXCEL
+                            </button>
                         </div>
                     </div>
 
@@ -153,133 +155,128 @@
                 </div>
             </main>
 
-            <!-- ================= VIEW 2: BATCH TELEMETRY (DASHBOARD) ================= -->
+            <!-- ================= VIEW 2: PRODUCT DASHBOARD (PRIMARY INTELLIGENCE VIEW) ================= -->
             <main class="content-view" id="view-dashboard">
                 <header class="view-header">
                     <div>
-                        <h1 class="view-title">Batch Telemetry</h1>
-                        <p class="view-subtitle">High-level processing metrics and background pipeline monitoring.</p>
+                        <h1 class="view-title">Product Intelligence Dashboard</h1>
+                        <p class="view-subtitle">Live intelligence for the current searched product, 2-sheet Excel exports, and historical research repository.</p>
                     </div>
                     <div class="view-actions">
-                        <button class="btn btn-outline" onclick="exportCatalog('csv')">DOWNLOAD 252 CSV</button>
-                        <button class="btn btn-primary" onclick="exportCatalog('xlsx')">DOWNLOAD 252 XLSX</button>
-                    </div>
-                </header>
-
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <span class="metric-label">TOTAL ITEMS INGESTED</span>
-                        <div class="metric-value-row">
-                            <span class="metric-number" id="kpi-total-processed">241</span>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <span class="metric-label">RESEARCH SUCCESS RATE</span>
-                        <div class="metric-value-row">
-                            <span class="metric-number" id="kpi-success-rate">99.2%</span>
-                        </div>
-                        <div class="mini-progress-track">
-                            <div class="mini-progress-fill bg-success" style="width: 99.2%"></div>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <span class="metric-label">DATABASE SYNC STATUS</span>
-                        <div class="metric-value-row">
-                            <span class="metric-number text-success">Active</span>
-                            <span class="pulse-dot"></span>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <span class="metric-label">TOTAL SCHEMA FIELDS</span>
-                        <div class="metric-value-row">
-                            <span class="metric-number">252</span>
-                            <span class="metric-sub">cols</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Processing Pipeline Funnel -->
-                <div class="pipeline-card">
-                    <h3 class="pipeline-title" style="margin-bottom: 20px;">Active Enrichment Funnel</h3>
-                    <div class="pipeline-stepper">
-                        <div class="step-item completed">
-                            <div class="step-circle"><span class="step-dot"></span></div>
-                            <div class="step-body">
-                                <h4 class="step-title">1. Multimodal Ingestion</h4>
-                                <p class="step-desc">Images, PDFs, or CSV rows ingested & identity resolved from dataset.csv.</p>
-                            </div>
-                        </div>
-                        <div class="step-item completed">
-                            <div class="step-circle"><span class="step-dot"></span></div>
-                            <div class="step-body">
-                                <h4 class="step-title">2. Multi-Website Research</h4>
-                                <p class="step-desc">Manufacturer portals, datasheets, CAD, manuals, and SDS links queried.</p>
-                            </div>
-                        </div>
-                        <div class="step-item completed">
-                            <div class="step-circle"><span class="step-dot"></span></div>
-                            <div class="step-body">
-                                <h4 class="step-title">3. 252-Column Strict Normalization</h4>
-                                <p class="step-desc">50 attribute triplets and ANSI/NIST units generated and saved to backend database.</p>
-                            </div>
-                        </div>
-                        <div class="step-item completed">
-                            <div class="step-circle"><span class="step-dot"></span></div>
-                            <div class="step-body">
-                                <h4 class="step-title">4. Database Repository Synchronization</h4>
-                                <p class="step-desc">Analysis links and catalog attributes synchronized and persisted.</p>
-                                <span class="step-status-tag success">SYNCHRONIZED</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-
-            <!-- ================= VIEW 3: DATABASE REPOSITORY & EXPORT SINK ================= -->
-            <main class="content-view" id="view-sheets">
-                <header class="view-header">
-                    <div>
-                        <h1 class="view-title">Database Repository & Export Hub</h1>
-                        <p class="view-subtitle">Live catalog storage, batch synchronization & master export management.</p>
-                    </div>
-                    <div class="view-actions">
-                        <button class="btn btn-outline" onclick="exportCatalog('csv')">
-                            <span class="material-symbols-outlined text-[18px]">download</span>
-                            DOWNLOAD CSV
+                        <button class="btn btn-primary" onclick="downloadCurrentProductExcel()">
+                            <span class="material-symbols-outlined text-[18px]">table_view</span>
+                            DOWNLOAD 2-SHEET EXCEL (.XLSX)
                         </button>
-                        <button class="btn btn-primary" onclick="exportCatalog('xlsx')">
-                            <span class="material-symbols-outlined text-[18px]">download</span>
-                            DOWNLOAD XLSX
+                        <button class="btn btn-secondary" onclick="syncCurrentProductToSheets()">
+                            <span class="material-symbols-outlined text-[18px]">sync</span>
+                            SYNC TO GOOGLE SHEETS
                         </button>
                     </div>
                 </header>
 
-                <div class="sheets-integration-card">
-                    <div class="sheets-info-grid">
-                        <div class="info-item">
-                            <span class="info-label">DATASET SOURCE</span>
-                            <span class="info-val font-mono">dataset.csv (241 Industrial Products Loaded)</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">OUTPUT CONTRACT SCHEMA</span>
-                            <span class="info-val font-mono">252 Contractual Headers</span>
-                        </div>
-                        <div class="info-item" style="grid-column: 1 / -1;">
-                            <span class="info-label">STORAGE STATUS</span>
-                            <span class="info-val" style="color: var(--success); font-weight: 600;">Active & Synced to Internal Database Repository</span>
-                        </div>
+                <!-- Current Searched Product Hero Widget -->
+                <div class="product-hero-card" id="product-hero-widget">
+                    <div id="hero-empty-state" style="padding: 40px 20px; text-align: center;">
+                        <span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary); opacity: 0.7;">manage_search</span>
+                        <h3 style="margin-top: 12px; font-size: 18px;">No Product Researched Yet</h3>
+                        <p class="text-muted" style="margin-top: 4px;">Enter a part number in Product Input or select a previous search from History below.</p>
+                        <button class="btn btn-primary btn-sm" style="margin-top: 16px;" onclick="switchNavTab('input')">
+                            <span class="material-symbols-outlined text-[16px]">search</span>
+                            GO TO PRODUCT SEARCH
+                        </button>
                     </div>
 
-                    <div style="margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
-                        <button class="btn btn-secondary" onclick="syncAllToDatabase()">
-                            <span class="material-symbols-outlined text-[16px]">sync</span>
-                            SYNCHRONIZE ALL CATALOG RESEARCH DATA NOW
+                    <div id="hero-active-content" style="display: none;">
+                        <!-- Product Title & Identity Banner -->
+                        <div class="hero-top-row">
+                            <div>
+                                <div class="hero-tags-row">
+                                    <span class="badge-pill brand" id="hero-brand">BRAND</span>
+                                    <span class="badge-pill verified" id="hero-status"><span class="pulse-dot"></span> VERIFIED</span>
+                                    <span class="badge-pill confidence" id="hero-confidence">98% CONFIDENCE</span>
+                                </div>
+                                <h2 class="hero-title" id="hero-title">Product Name & Specifications</h2>
+                                <div class="hero-meta-grid">
+                                    <div><span class="meta-label">MANUFACTURER PART #:</span> <span class="meta-val font-mono" id="hero-mpn">---</span></div>
+                                    <div><span class="meta-label">RESOLVED BRAND:</span> <span class="meta-val" id="hero-brand-name">---</span></div>
+                                    <div><span class="meta-label">MANUFACTURER:</span> <span class="meta-val" id="hero-manufacturer">---</span></div>
+                                    <div><span class="meta-label">CATEGORY:</span> <span class="meta-val" id="hero-category">---</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2-Sheet Excel Export Notice Banner -->
+                        <div class="excel-notice-card">
+                            <div class="excel-notice-icon">
+                                <span class="material-symbols-outlined">description</span>
+                            </div>
+                            <div class="excel-notice-body">
+                                <h4>2-Sheet Excel Export Available for this Product</h4>
+                                <p>Sheet 1: <strong>Product Details</strong> (252 commerce attributes) | Sheet 2: <strong>Search Links</strong> (all authoritative portals & datasheets).</p>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="downloadCurrentProductExcel()">
+                                <span class="material-symbols-outlined text-[16px]">download</span>
+                                EXPORT (.XLSX)
+                            </button>
+                        </div>
+
+                        <!-- Discovered Research Sources on Dashboard -->
+                        <div class="dashboard-section" style="margin-top: 24px;">
+                            <h3 class="section-heading-sm">DISCOVERED MULTI-WEBSITE RESEARCH SOURCES:</h3>
+                            <div class="links-cards-grid" id="dashboard-links-grid">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Key Specifications Matrix -->
+                        <div class="dashboard-section" style="margin-top: 24px;">
+                            <h3 class="section-heading-sm">EXTRACTED TECHNICAL SPECIFICATIONS:</h3>
+                            <div class="specs-pill-grid" id="dashboard-specs-grid">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Research History Section -->
+                <div class="history-card" style="margin-top: 32px;">
+                    <div class="history-header-row">
+                        <div>
+                            <h3 class="pipeline-title">Research History (Previous Searches)</h3>
+                            <p class="text-muted" style="font-size: 13px;">Click on any previous product research to view its intelligence details on the dashboard.</p>
+                        </div>
+                        <button class="btn btn-outline btn-sm" onclick="loadResearchHistory()">
+                            <span class="material-symbols-outlined text-[16px]">refresh</span>
+                            REFRESH HISTORY
                         </button>
+                    </div>
+
+                    <div class="history-table-wrapper" style="margin-top: 16px;">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>PART NUMBER</th>
+                                    <th>BRAND</th>
+                                    <th>PRODUCT TITLE</th>
+                                    <th>CATEGORY</th>
+                                    <th>CONFIDENCE</th>
+                                    <th>TIME</th>
+                                    <th style="text-align: right;">ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                                        Loading research history...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </main>
 
-            <!-- ================= VIEW 4: ASK PRODUCT AI ================= -->
+            <!-- ================= VIEW 3: ASK PRODUCT AI ================= -->
             <main class="content-view" id="view-chat">
                 <header class="view-header">
                     <div>

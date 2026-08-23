@@ -747,3 +747,201 @@ body {
     outline: none;
     color: var(--text-main);
 }
+
+/* ================= Product Dashboard Hero Card ================= */
+.product-hero-card {
+    background-color: var(--bg-container);
+    border: 1px solid var(--border-color);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+}
+
+.hero-tags-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.badge-pill.brand {
+    background-color: var(--primary);
+    color: #fff;
+    font-weight: 700;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    letter-spacing: 0.05em;
+}
+
+.badge-pill.verified {
+    background-color: #e3ebd9;
+    color: #3b5a2b;
+    font-weight: 600;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.badge-pill.confidence {
+    background-color: var(--bg-container-elevated);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+}
+
+.hero-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.3;
+    margin-bottom: 16px;
+}
+
+.hero-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px 20px;
+    padding: 16px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.meta-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    display: block;
+}
+
+.meta-val {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* ================= 2-Sheet Excel Notice Banner ================= */
+.excel-notice-card {
+    background-color: #f7f3eb;
+    border: 1px solid #d9cdb8;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.excel-notice-icon {
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+}
+
+.excel-notice-body {
+    flex-grow: 1;
+}
+
+.excel-notice-body h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 2px;
+}
+
+.excel-notice-body p {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ================= Technical Specs Pill Grid ================= */
+.specs-pill-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.spec-pill-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.spec-pill-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.spec-pill-val {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* ================= Research History Table ================= */
+.history-card {
+    background-color: var(--bg-container);
+    border: 1px solid var(--border-color);
+    padding: 24px 28px;
+}
+
+.history-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.history-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-surface);
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+}
+
+.history-table th {
+    background-color: var(--bg-container-elevated);
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.history-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-main);
+    vertical-align: middle;
+}
+
+.history-table tbody tr:hover {
+    background-color: #faf5f0;
+}
