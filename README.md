@@ -7,202 +7,611 @@
 [![Dataset](https://img.shields.io/badge/Dataset-241_Products_Loaded-success.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
-**ProdIntellix** is an enterprise-grade **AI-Powered Product Intelligence and Catalog Enrichment Platform** purpose-built for industrial distributors, wholesalers, and manufacturers. It transforms sparse, inconsistent, 6-column product inputs into complete, normalized, authoritative, and commerce-ready catalog records conforming strictly to the **contractual 252-column output schema**.
+---
+
+# 🌐 ProdIntellix
+
+> **AI-Powered Product Intelligence, Multi-Source Verification & 252-Column Enrichment Engine for Industrial Commerce.**
+
+ProdIntellix transforms sparse and incomplete industrial product information into **enriched, validated, traceable, and commerce-ready product intelligence** using multi-source research, hybrid RAG, AI extraction, cross-source validation, and automated catalog generation.
 
 ---
 
-## 🌟 Key Features
+## 🚀 Overview
 
-1. **Dynamic Dataset Loading via `csv.DictReader`:**
-   - No hardcoded Python datasets or static arrays.
-   - Dynamically loads and parses catalog records directly from `dataset.csv` using native `csv.DictReader`.
-   - Supports 241+ real industrial products across leading brands (Diablo, 3M, Milwaukee, Mirka, GE, Trex, TimberTech, Kichler, Leviton, Philips, Dewalt, Makita, Festool, Senco, Hunter, etc.).
+Industrial product information is often scattered across manufacturer websites, distributor portals, technical PDFs, manuals, catalogs, and product images.
 
-2. **Deterministic 252-Column Output Contract:**
-   - 100% preservation of raw source columns (`Mfg_Part_Num`, `Part_Desc`, `E1_Brand`, `Unilog_Brand`, `DIB_Brand`, `Part_Manuf`).
-   - Populates up to **50 Attribute Triplets** (`ATTR_NAME_1..50`, `ATTR_VALUE_1..50`, `ATTR_UOM_1..50`) with ANSI/NIST normalized units (`IN`, `MM`, `LBS`, `V`, `VAC`, `VDC`, `A`, `HP`, `KW`, `PSI`, `°C`, etc.).
-   - Exports directly to 252-column CSV and Excel XLSX formats.
+**ProdIntellix** brings these sources together and converts minimal product information into structured product intelligence.
 
-3. **Multi-Source Identity Resolution & Disambiguation:**
-   - Weighted consensus algorithm resolving brand aliases (e.g. Rockwell/Allen-Bradley, Square D/Schneider Electric, Siemens, Eaton, ABB, Honeywell, Parker, Kichler, Leviton).
-   - Generates canonical and normalized alphanumeric part numbers for cross-catalog deduplication.
+Given a **part number, product description, brand, manufacturer, image/nameplate, PDF, or catalog**, the platform can:
 
-4. **Multi-Website Research & Source Discovery:**
-   - Deep search query synthesis targeting official manufacturer portals, technical datasheets, user manuals, 3D CAD models, and SDS/MSDS compliance files.
-
-5. **Multimodal Ingestion (Images, Technical PDFs, Spreadsheets):**
-   - Ingest product images via visual OCR and spec detection.
-   - Parse dense technical spec sheets and equipment manuals in PDF format.
-   - Batch upload sparse catalog CSV/XLSX spreadsheets.
-
-6. **Conversational Product AI & RAG Grounding:**
-   - Semantic retrieval against local ChromaDB vector store powered by SentenceTransformers.
-   - Grounded conversational assistant answering technical compatibility and specification queries.
-
-7. **Clean Web Application Interface:**
-   - Modern, responsive console interface with live telemetry, multimodal dropzones, instant web research inspector, and database repository management.
-   - Secure local export actions (Download 252-Column CSV / XLSX) without exposing raw external spreadsheet URLs.
+* Identify the canonical product and brand
+* Discover authoritative product sources
+* Retrieve relevant technical evidence using RAG
+* Extract and normalize technical specifications
+* Cross-validate information across multiple sources
+* Detect specification conflicts
+* Generate commerce-ready descriptions and features
+* Produce the required **252-column product output**
+* Export the final catalog as Excel/CSV
+* Synchronize product information with Google Sheets
 
 ---
 
-## 📂 Dataset Integration (`dataset.csv`)
-
-The system loads catalog data dynamically using Python's standard `csv.DictReader`:
-
-```python
-import csv
-
-# Open and read the dataset dynamically
-with open("dataset.csv", mode="r", encoding="utf-8") as file:
-    reader = csv.DictReader(file)
-    for row in reader:
-        # Each row is a dictionary containing:
-        # row["Mfg_Part_Num"], row["Part_Desc"], row["E1_Brand"],
-        # row["Unilog_Brand"], row["DIB_Brand"], row["Part_Manuf"]
-        print(row)
-```
-
-The dataset includes 241 diverse industrial hardware products across categories:
-- Abrasives & Sanding Belts (Diablo, 3M Cubitron, Mirka)
-- Power Tool Accessories & Cut-Off Discs (Milwaukee, Dewalt, Makita)
-- Commercial Appliances (Speed Queen, GE, Cafe, LG, KitchenAid)
-- Building Materials & Decking (Trex, TimberTech, LP SmartSide, JamesHardie)
-- Electrical, Wiring & Lighting (Leviton, Satco, Kichler, Philips, Southwire, Square D)
-- Safety & Precision Tools (Edge Eyewear, Wera, Festool, Kreg, Vessel, Bow Products)
-
----
-
-## 🏗️ System Architecture
+# 🔄 End-to-End Workflow
 
 ```text
-[Input Sources: dataset.csv / Images / Spec PDFs / Web Search]
-                             │
-                             ▼
-              [1. Input Schema Validation]
-                             │
-                             ▼
-              [2. Identity Resolution Engine]
-            (Brand Consensus + Canonical Part Number)
-                             │
-                             ▼
-              [3. Multi-Website Source Discovery]
-      (Manufacturer Portals + Datasheets + CAD + SDS)
-                             │
-                             ▼
-              [4. Fact & Spec Extraction Engine]
-     (Electrical, Mechanical, Dimensional Attribute Triplets)
-                             │
-                             ▼
-              [5. ANSI/NIST UOM Normalizer]
-                             │
-                             ▼
-              [6. Grounded Commerce Copy Synthesis]
-         (Titles, Short/Long Descriptions, 20 Feature Bullets)
-                             │
-                             ▼
-              [7. Validation & Confidence Scoring]
-                             │
-                             ▼
-              [8. Strict 252-Column Mapping Engine]
-                             │
-                             ▼
-           [9. Relational DB Storage & 252 CSV/XLSX Export]
+┌─────────────────────────────┐
+│       MULTIMODAL INPUT      │
+│                             │
+│ Part Number / SKU           │
+│ Product Image / Nameplate   │
+│ PDF / Manual                │
+│ CSV / XLSX Catalog          │
+└──────────────┬──────────────┘
+               ↓
+┌─────────────────────────────┐
+│   PRODUCT IDENTITY          │
+│                             │
+│ MPN + Brand + Manufacturer  │
+│ Identity Resolution         │
+└──────────────┬──────────────┘
+               ↓
+┌─────────────────────────────┐
+│ MULTI-SOURCE DISCOVERY      │
+│                             │
+│ Manufacturer Websites       │
+│ Distributors                │
+│ Datasheets / Manuals        │
+│ Catalogs / Technical Docs   │
+└──────────────┬──────────────┘
+               ↓
+┌─────────────────────────────┐
+│   CHROMA CLOUD HYBRID RAG   │
+│                             │
+│ Chunking → Embeddings       │
+│ Semantic Retrieval          │
+│ Evidence Grounding          │
+└──────────────┬──────────────┘
+               ↓
+┌─────────────────────────────┐
+│ AI EXTRACTION & NORMALIZE   │
+│                             │
+│ 50 Attribute Triplets       │
+│ Value + UOM Normalization   │
+└──────────────┬──────────────┘
+               ↓
+┌─────────────────────────────┐
+│ CROSS-SOURCE VALIDATION     │
+│                             │
+│ Consensus Detection         │
+│ Conflict Arbitration        │
+│ Confidence Scoring          │
+└──────────────┬──────────────┘
+               ↓
+┌─────────────────────────────┐
+│ COMMERCIAL AI ENRICHMENT     │
+│                             │
+│ Descriptions                │
+│ 20 Feature Bullets          │
+│ Applications & Compatibility│
+└──────────────┬──────────────┘
+               ↓
+┌─────────────────────────────┐
+│    252-COLUMN OUTPUT        │
+│                             │
+│ Product Details             │
+│ Search Links                │
+│ Evidence & References       │
+└──────────────┬──────────────┘
+               ↓
+       XLSX / CSV / Sheets
 ```
 
 ---
 
-## 📊 252-Column Header Contract Breakdown
+# ✨ Key Features
 
-| Group | Columns | Count | Description |
-| :--- | :--- | :---: | :--- |
-| **Group 1** | 1–6 | 6 | Raw Input Preservation (`Mfg_Part_Num`, `Part_Desc`, `E1_Brand`, `Unilog_Brand`, `DIB_Brand`, `Part_Manuf`) |
-| **Group 2** | 7–23 | 17 | Core Identifiers & Taxonomy (`PRODUCT_NAME`, `MANUFACTURER`, `BRAND_NAME`, `CANONICAL_PART_NUMBER`, `NORMALIZED_PART_NUMBER`, `PRIMARY_CATEGORY`..`EAN`) |
-| **Group 3** | 24–29 | 6 | Commerce Descriptions (`MOBILE_DESC`, `INVOICE_DESC`, `SHORT_DESC`, `LONG_DESC1`, `RETAIL_DESC`, `MARKETING_DESCRIPTION`) |
-| **Group 4** | 30–49 | 20 | Item Feature Bullets (`ITEM_FEATURES_1` through `ITEM_FEATURES_20`) |
-| **Group 5** | 50–55 | 6 | Commerce Metadata (`WITH`, `APPROVALS_STANDARDS`, `APPLICATION`, `INCLUDES`, `SEARCH_KEYWORDS`, `SEO_TITLE`) |
-| **Group 6** | 56–205 | 150 | 50 Attribute Triplets (`ATTR_NAME_1..50`, `ATTR_VALUE_1..50`, `ATTR_UOM_1..50`) |
-| **Group 7** | 206–224 | 19 | Physical Dimensions & Packaging (`WEIGHT`, `LENGTH`, `WIDTH`, `HEIGHT`, `PACKAGE_QTY`, `WARRANTY_YEARS`, `NEMA_RATING`...) |
-| **Group 8** | 225–249 | 25 | Digital Assets & Technical Ratings (`PRIMARY_IMAGE_URL`, `SPEC_SHEET_URL`, `USER_MANUAL_URL`, `CAD_DRAWING_URL`, `VOLTAGE_RATING`...) |
-| **Group 9** | 250–252 | 3 | Operational Flags (`COUNTRY_OF_ORIGIN`, `DISCONTINUED_STATUS`, `IMAGE_FLAG`) |
-| **Total** | **1–252** | **252** | **Strict, fixed contractual headers in exact sequence** |
+### 🔎 1. Multi-Source Product Research
+
+Researches manufacturer websites, industrial distributors, technical PDFs, catalogs, manuals, and other authoritative sources.
+
+### 🧠 2. AI-Powered RAG Enrichment
+
+Uses Chroma Cloud and LLMs to retrieve relevant evidence and extract grounded product information.
+
+### ✅ 3. Product Identity & Validation
+
+Resolves product and brand identity, compares information across sources, detects conflicts, and calculates confidence.
+
+### ⚙️ 4. Smart Attribute Extraction
+
+Extracts up to **50 technical attribute triplets** with normalized values and units of measurement.
+
+### 🛒 5. Commerce-Ready Content
+
+Generates mobile, invoice, short, long, retail, and marketing descriptions along with **20 structured product features**.
+
+### 📊 6. 252-Column Contractual Output
+
+Maps verified product intelligence into the required **252-column schema** and generates a structured Excel/CSV deliverable.
 
 ---
 
-## 🚀 Quick Start Guide
+# 🏗️ Architecture
 
-### 1. Prerequisites
-- Python 3.11+
-- Git
+```text
+                    ┌─────────────────────┐
+                    │   Product Input     │
+                    │ CSV / XLSX / Image  │
+                    │ PDF / Part Number   │
+                    └──────────┬──────────┘
+                               ↓
+                    ┌─────────────────────┐
+                    │ Identity Resolution │
+                    └──────────┬──────────┘
+                               ↓
+              ┌────────────────┴────────────────┐
+              ↓                                 ↓
+    ┌──────────────────┐              ┌──────────────────┐
+    │ Web Search       │              │ Document Input   │
+    │ Manufacturer     │              │ PDF / Manual     │
+    │ Distributor      │              │ Catalog          │
+    └────────┬─────────┘              └────────┬─────────┘
+             └────────────────┬────────────────┘
+                              ↓
+                    ┌─────────────────────┐
+                    │  Chroma Cloud RAG   │
+                    │ Vector Retrieval    │
+                    │ Evidence Grounding  │
+                    └──────────┬──────────┘
+                               ↓
+                    ┌─────────────────────┐
+                    │ Gemini / OpenRouter │
+                    │ AI Extraction       │
+                    └──────────┬──────────┘
+                               ↓
+                    ┌─────────────────────┐
+                    │ Validation Engine   │
+                    │ Consensus / Conflict│
+                    └──────────┬──────────┘
+                               ↓
+                    ┌─────────────────────┐
+                    │ Enrichment Engine   │
+                    │ Descriptions/Specs  │
+                    └──────────┬──────────┘
+                               ↓
+                    ┌─────────────────────┐
+                    │ 252-Column Mapper   │
+                    └──────────┬──────────┘
+                               ↓
+                  ┌────────────┴────────────┐
+                  ↓                         ↓
+             XLSX / CSV              Google Sheets
+```
 
-### 2. Installation
+---
+
+# 🧩 Multimodal Input
+
+ProdIntellix supports multiple ways to provide product information:
+
+| Input             | Purpose                          |
+| ----------------- | -------------------------------- |
+| Part Number / SKU | Individual product research      |
+| Product Image     | Nameplate/product identification |
+| Technical PDF     | Specification extraction         |
+| CSV               | Bulk catalog enrichment          |
+| XLSX              | Bulk catalog enrichment          |
+| Google Sheet      | Catalog synchronization          |
+
+---
+
+# 📚 RAG & Evidence Grounding
+
+ProdIntellix uses **Chroma Cloud Hybrid RAG** to retrieve relevant product information.
+
+The document pipeline is:
+
+```text
+PDF / Web Content
+       ↓
+Text Extraction
+       ↓
+Line-Based Chunking
+       ↓
+Embeddings
+       ↓
+Chroma Cloud
+       ↓
+Semantic Retrieval
+       ↓
+LLM
+       ↓
+Grounded Product Intelligence
+```
+
+Each retrieved document chunk can retain source information such as:
+
+* Document ID
+* Chunk index
+* Source URL
+* Product identifier
+* Document reference
+
+This allows generated information to be traced back to supporting evidence.
+
+---
+
+# ⚙️ Product Attribute Intelligence
+
+ProdIntellix extracts up to **50 structured attribute triplets**:
+
+```text
+Attribute Name
+      +
+Attribute Value
+      +
+Unit of Measure
+```
+
+Example:
+
+```text
+Voltage     → 480 → VAC
+Current     → 40  → A
+Weight      → 95  → lb
+Interrupt   → 65  → kA
+```
+
+Values are normalized to maintain consistency across different sources.
+
+---
+
+# 📝 AI Commerce Enrichment
+
+The platform generates multiple forms of product content:
+
+* Mobile Description
+* Invoice Description
+* Short Description
+* Long Description
+* Retail Description
+* Marketing Description
+* 20 Structured Feature Bullets
+* Applications
+* Compatibility information
+* Product specifications
+
+Generated content is based on retrieved and validated product information.
+
+---
+
+# 🔐 Multi-Source Validation
+
+ProdIntellix compares information from multiple sources.
+
+```text
+Manufacturer
+     │
+     ├── Voltage: 480 VAC
+     │
+Distributor
+     │
+     ├── Voltage: 480 VAC
+     │
+Datasheet
+     │
+     └── Voltage: 480 VAC
+              ↓
+       Source Consensus
+              ↓
+         VERIFIED
+```
+
+When conflicting information is detected:
+
+```text
+Manufacturer → 95 lb
+Distributor  → 94 lb
+              ↓
+       Conflict Detected
+              ↓
+        Review Required
+```
+
+This helps reduce unsupported or hallucinated product specifications.
+
+---
+
+# 📊 Enterprise Output
+
+ProdIntellix generates:
+
+### Sheet 1 — Product Details
+
+A strict **252-column contractual schema** containing the enriched product information.
+
+### Sheet 2 — Search Links
+
+Contains discovered authoritative URLs and references used during product research.
+
+Final output:
+
+```text
+ProdIntellix_Output.xlsx
+```
+
+The platform can also generate CSV output.
+
+---
+
+# 🛠️ Technology Stack
+
+| Layer                   | Technology                                |
+| ----------------------- | ----------------------------------------- |
+| Frontend                | HTML5, Modern CSS, JavaScript             |
+| Backend                 | Python, FastAPI                           |
+| Vector Database         | Chroma Cloud                              |
+| Embeddings              | Hugging Face / `all-MiniLM-L6-v2`         |
+| LLM                     | OpenRouter / LLaMA 3.3 70B, Google Gemini |
+| PDF Processing          | pypdf                                     |
+| Word Processing         | python-docx                               |
+| Data Processing         | pandas                                    |
+| Excel Generation        | openpyxl                                  |
+| Structured Database     | SQLite / SQLAlchemy                       |
+| Spreadsheet Integration | Google Sheets + Apps Script               |
+| Deployment              | Vercel / Uvicorn                          |
+
+---
+
+# 📁 Project Structure
+
+```text
+ProdIntellix/
+│
+├── app.py
+├── config.py
+├── ingest.py
+├── rag.py
+├── history.py
+├── requirements.txt
+├── .env.example
+│
+├── product/
+│   ├── identity.py
+│   ├── extractor.py
+│   ├── normalizer.py
+│   ├── validator.py
+│   ├── confidence.py
+│   ├── prompts.py
+│   └── schema.py
+│
+├── sources/
+│   ├── search.py
+│   ├── scraper.py
+│   ├── fetcher.py
+│   └── source_ranker.py
+│
+├── export/
+│   ├── output_schema.py
+│   ├── mapper.py
+│   └── exporter.py
+│
+├── services/
+│   ├── product_pipeline.py
+│   └── google_sheet_service.py
+│
+├── db/
+│   ├── database.py
+│   └── models.py
+│
+├── jobs/
+│   └── processor.py
+│
+├── templates/
+├── static/
+├── tests/
+└── docs/
+```
+
+---
+
+# 🚀 Getting Started
+
+## 1. Clone the repository
 
 ```bash
-# Clone the repository
-git clone https://github.com/Rutuja-131005/AI-Powered-Product-Intelligence-for-Industrial-Commerce.git
-cd AI-Powered-Product-Intelligence-for-Industrial-Commerce
+git clone https://github.com/Rutuja-131005/ProdIntellix.git
+cd ProdIntellix
+```
 
-# Install dependencies
+## 2. Create a virtual environment
+
+### Windows
+
+```powershell
+python -m venv venv
+venv\Scripts\activate
+```
+
+### Linux / macOS
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+## 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 3. Environment Setup (Optional)
-Copy `.env.example` to `.env` and supply your API keys if enabling live cloud LLM queries:
-```bash
-cp .env.example .env
+## 4. Configure environment variables
+
+Create a `.env` file:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key
+OPENROUTER_API_KEY=your_openrouter_api_key
+
+CHROMA_API_KEY=your_chroma_api_key
+CHROMA_TENANT=your_chroma_tenant
+CHROMA_DATABASE=Product-Intelligence
+
+TAVILY_API_KEY=your_tavily_api_key
+FIRECRAWL_API_KEY=your_firecrawl_api_key
 ```
 
-### 4. Running the Application
-
-```bash
-# Start the FastAPI server
-python -m uvicorn app:app --host 127.0.0.1 --port 8000 --reload
-```
-
-Open your browser and navigate to: **`http://127.0.0.1:8000`**
+Only configure the services enabled in your deployment.
 
 ---
 
-## 🧪 Testing & Verification
+# ▶️ Run Locally
 
-Run the full automated test suite covering schema compliance, dynamic identity resolution, workflow execution, and 252-column export verification:
+Start the FastAPI server:
 
 ```bash
-# Run schema and contract validation tests
-python tests/test_252_schema.py
+python app.py
+```
 
-# Run identity resolution and brand normalization tests
-python tests/test_identity.py
+Open:
 
-# Run end-to-end workflow execution tests
-python tests/test_workflow.py
+**[http://localhost:8000](http://localhost:8000)**
 
-# Run synthetic novel part test
-python tests/test_synthetic_product.py
+---
 
-# Run service pipeline test
-python tests/test_pipeline.py
+# 🎯 Demo Workflow
+
+### Individual Product
+
+1. Open the ProdIntellix dashboard.
+2. Enter a part number, SKU, or product information.
+3. Start product research.
+4. ProdIntellix resolves the product identity.
+5. Multiple sources are discovered and ranked.
+6. Relevant documents are retrieved through RAG.
+7. AI extracts and normalizes specifications.
+8. Sources are cross-validated.
+9. Product descriptions and features are generated.
+10. View the enriched product dashboard.
+11. Generate the final Excel/CSV output.
+
+### Bulk Catalog
+
+```text
+CSV/XLSX
+   ↓
+Upload Catalog
+   ↓
+Process Products
+   ↓
+Multi-Source Research
+   ↓
+RAG + AI Enrichment
+   ↓
+Validation
+   ↓
+252-Column Mapping
+   ↓
+ProdIntellix_Output.xlsx
 ```
 
 ---
 
-## 📡 REST API Reference
+# 📤 Output Example
 
-| Endpoint | Method | Description |
-| :--- | :--- | :--- |
-| `/` | `GET` | Serves the main Web Console UI |
-| `/api/jobs` | `POST` | Uploads CSV/XLSX, validates schema, starts batch enrichment |
-| `/api/jobs/{job_id}` | `GET` | Returns real-time progress %, counts, and KPIs |
-| `/api/jobs/{job_id}/products` | `GET` | Paginated, searchable, brand/status filterable catalog |
-| `/api/jobs/{job_id}/export/csv` | `GET` | Downloads strict 252-column CSV file |
-| `/api/jobs/{job_id}/export/xlsx` | `GET` | Downloads strict 252-column Excel XLSX workbook |
-| `/api/intelligence/search-product` | `POST` | Instant multi-website research on part number / query |
-| `/api/intelligence/upload-image` | `POST` | Uploads product image for OCR, web research & enrichment |
-| `/api/intelligence/upload-pdf` | `POST` | Uploads PDF technical datasheet for spec extraction |
-| `/query` | `POST` | Natural language RAG conversational query against catalog |
-| `/status` | `GET` | Vector store & server status telemetry |
+The generated workbook contains:
+
+```text
+ProdIntellix_Output.xlsx
+│
+├── Product Details
+│   ├── Product Identity
+│   ├── Taxonomy
+│   ├── Descriptions
+│   ├── Features
+│   ├── Attributes
+│   ├── Technical Specifications
+│   └── Commerce Information
+│
+└── Search Links
+    ├── Manufacturer URLs
+    ├── Distributor URLs
+    ├── PDF References
+    └── Other Sources
+```
 
 ---
 
-## 📄 License
+# 🔍 Example Product Research
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Example input:
+
+```text
+Part Number: 140U-J0D3-C40
+Brand: Allen-Bradley
+```
+
+ProdIntellix:
+
+```text
+Input
+  ↓
+Identity Resolution
+  ↓
+Source Discovery
+  ↓
+Manufacturer / Distributor / PDF Research
+  ↓
+Chroma RAG
+  ↓
+AI Extraction
+  ↓
+Validation
+  ↓
+Commercial Enrichment
+  ↓
+252-Column Output
+```
+
+---
+
+# 🌟 Why ProdIntellix?
+
+Traditional product catalog enrichment requires manually researching hundreds of attributes across multiple sources.
+
+ProdIntellix automates this process by combining:
+
+**Multi-source research + RAG + AI extraction + normalization + validation + commerce enrichment + structured export**
+
+into a single workflow.
+
+---
+
+# 🔮 Future Scope
+
+* Knowledge graph-based product relationships
+* Advanced vision-language product analysis
+* Automated technical table extraction
+* More industrial source connectors
+* Human-in-the-loop active learning
+* Large-scale asynchronous catalog processing
+* Advanced product similarity and recommendation
+* Automated catalog quality scoring
+
+---
+
+# 👥 Team
+
+**ProdIntellix**
+AI-Powered Product Intelligence for Industrial Commerce
+
+Built for the **Hack2Skill / Industrial Commerce Product Intelligence Challenge**.
+
+---
+
+## 📜 License
+
+This project is developed as a hackathon/prototype solution. Add an appropriate open-source license if you plan to publish the code for general reuse.
