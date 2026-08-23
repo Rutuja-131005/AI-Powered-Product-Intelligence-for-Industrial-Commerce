@@ -225,18 +225,167 @@
 
                         <!-- Discovered Research Sources on Dashboard -->
                         <div class="dashboard-section" style="margin-top: 24px;">
-                            <h3 class="section-heading-sm">DISCOVERED MULTI-WEBSITE RESEARCH SOURCES:</h3>
+                            <h3 class="section-heading-sm">STEP 3 — MULTI-SOURCE DISCOVERY:</h3>
                             <div class="links-cards-grid" id="dashboard-links-grid">
                                 <!-- Populated dynamically -->
                             </div>
                         </div>
 
-                        <!-- Key Specifications Matrix -->
-                        <div class="dashboard-section" style="margin-top: 24px;">
-                            <h3 class="section-heading-sm">EXTRACTED TECHNICAL SPECIFICATIONS:</h3>
-                            <div class="specs-pill-grid" id="dashboard-specs-grid">
-                                <!-- Populated dynamically -->
+                        <!-- Step 4 & 5: RAG Evidence & AI Extraction -->
+                        <div class="demo-step-two-col" style="margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <!-- Step 4: RAG Retrieved Evidence -->
+                            <div class="step-panel-card">
+                                <div class="step-panel-header">
+                                    <span class="step-badge">STEP 4 — RAG</span>
+                                    <h4 class="step-panel-title">Retrieved Evidence Chunks</h4>
+                                </div>
+                                <div class="rag-evidence-box" id="dashboard-rag-evidence">
+                                    <div class="rag-chunk-item">
+                                        <div class="rag-chunk-meta">
+                                            <span class="rag-src-tag">PDF Datasheet Chunk #12</span>
+                                            <span class="rag-score-tag">Similarity: 0.94</span>
+                                        </div>
+                                        <p class="rag-chunk-text">"140U-J0D3-C40: 3-Pole 40A Molded Case Circuit Breaker, 480 VAC rated, thermal-magnetic trip unit with 65 kA interrupting capacity at 480V."</p>
+                                    </div>
+                                    <div class="rag-chunk-item" style="margin-top: 8px;">
+                                        <div class="rag-chunk-meta">
+                                            <span class="rag-src-tag">MFR Manual Page 4</span>
+                                            <span class="rag-score-tag">Similarity: 0.91</span>
+                                        </div>
+                                        <p class="rag-chunk-text">"Operating temperature range: -25°C to 70°C. Standard bolt-on mounting configuration for industrial motor control centers."</p>
+                                    </div>
+                                </div>
                             </div>
+
+                            <!-- Step 5: AI Extraction -->
+                            <div class="step-panel-card">
+                                <div class="step-panel-header">
+                                    <span class="step-badge">STEP 5 — AI EXTRACTION</span>
+                                    <h4 class="step-panel-title">Technical Specs & Attributes</h4>
+                                </div>
+                                <div class="specs-pill-grid" id="dashboard-specs-grid">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 6 & 7: Multi-Source Validation & Conflict Resolution Review -->
+                        <div class="demo-step-two-col" style="margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <!-- Step 6: Multi-Source Validation -->
+                            <div class="step-panel-card">
+                                <div class="step-panel-header">
+                                    <span class="step-badge">STEP 6 — VALIDATION</span>
+                                    <h4 class="step-panel-title">Multi-Source Consensus</h4>
+                                </div>
+                                <div class="validation-consensus-box">
+                                    <div class="consensus-metric-row">
+                                        <span class="material-symbols-outlined text-success" style="font-size: 28px;">verified</span>
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 16px; color: var(--text-main);" id="val-sources-text">3 Sources Agree</div>
+                                            <div class="text-muted" style="font-size: 12px;">Manufacturer + Grainger + Spec Sheet consensus verified</div>
+                                        </div>
+                                        <span class="badge-pill success" style="margin-left: auto;" id="val-badge-score">97% CONFIDENCE</span>
+                                    </div>
+                                    <div class="consensus-checklist" style="margin-top: 12px;">
+                                        <div class="check-item"><span class="material-symbols-outlined text-success text-[16px]">check_circle</span> Voltage & Amperage aligned across 3 portals</div>
+                                        <div class="check-item"><span class="material-symbols-outlined text-success text-[16px]">check_circle</span> Dimensions & mounting matched against CAD drawing</div>
+                                        <div class="check-item"><span class="material-symbols-outlined text-success text-[16px]">check_circle</span> UL / ANSI certification confirmed with compliance registry</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 7: Review & Conflict Resolution -->
+                            <div class="step-panel-card review-conflict-card">
+                                <div class="step-panel-header">
+                                    <span class="step-badge warning">STEP 7 — REVIEW</span>
+                                    <h4 class="step-panel-title">Conflict Arbitration</h4>
+                                </div>
+                                <div class="conflict-alert-box">
+                                    <div class="conflict-alert-title">
+                                        <span class="material-symbols-outlined text-warning text-[20px]">warning</span>
+                                        <span>⚠ Conflicting Weight Information Detected</span>
+                                    </div>
+                                    <div class="conflict-comparison-grid">
+                                        <div class="conflict-side mfr">
+                                            <span class="conflict-label">Manufacturer Portal:</span>
+                                            <strong class="conflict-val">95 lb (43.1 kg)</strong>
+                                            <span class="conflict-tag mfr-tag">AUTHORITATIVE SOURCE</span>
+                                        </div>
+                                        <div class="conflict-side dist">
+                                            <span class="conflict-label">Distributor Catalog:</span>
+                                            <strong class="conflict-val">94 lb (42.6 kg)</strong>
+                                            <span class="conflict-tag dist-tag">DISTRIBUTOR ESTIMATE</span>
+                                        </div>
+                                    </div>
+                                    <div class="conflict-resolution-note">
+                                        <span class="material-symbols-outlined text-success text-[16px]">task_alt</span>
+                                        <span><strong>AI Resolution:</strong> Selected Manufacturer standard (<strong>95 lb</strong>) with high-confidence weighting.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 8: Marketing & Commercial Enrichment -->
+                        <div class="step-panel-card" style="margin-top: 24px;">
+                            <div class="step-panel-header">
+                                <span class="step-badge">STEP 8 — ENRICHMENT</span>
+                                <h4 class="step-panel-title">Commercial Copy, 20 Structured Features & Target Applications</h4>
+                            </div>
+                            <div class="enrichment-content-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 12px;">
+                                <div>
+                                    <div class="enrich-subheading">SHORT DESCRIPTION:</div>
+                                    <p class="enrich-text" id="enrich-short-desc">Allen-Bradley 140U-J0D3-C40 Molded Case Circuit Breaker, 40A 3-Pole 480V Industrial Motor Protection.</p>
+                                    
+                                    <div class="enrich-subheading" style="margin-top: 12px;">LONG DESCRIPTION:</div>
+                                    <p class="enrich-text" id="enrich-long-desc">Engineered for heavy-duty industrial commerce and motor circuit protection, the Allen-Bradley 140U-J0D3-C40 features advanced thermal-magnetic trip mechanisms, 65 kA interrupting rating at 480 VAC, and rigorous compliance with ANSI/UL standards for switchboards, panelboards, and industrial motor control centers.</p>
+
+                                    <div class="enrich-subheading" style="margin-top: 12px;">TARGET INDUSTRIAL APPLICATIONS:</div>
+                                    <div class="app-tags-row" id="enrich-applications">
+                                        <span class="app-tag">Motor Control Centers (MCC)</span>
+                                        <span class="app-tag">Industrial Switchboards</span>
+                                        <span class="app-tag">Heavy Automation Machinery</span>
+                                        <span class="app-tag">Power Distribution Units</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="enrich-subheading">20 STRUCTURED PRODUCT FEATURES:</div>
+                                    <ul class="features-bullet-list" id="enrich-features-list">
+                                        <li>High-efficiency thermal-magnetic overcurrent trip unit</li>
+                                        <li>3-Pole 40A continuous current capacity</li>
+                                        <li>Rated for 480 VAC / 250 VDC industrial systems</li>
+                                        <li>65 kA interrupting capacity at 480V</li>
+                                        <li>Compact molded case frame for space-optimized panel layout</li>
+                                        <li>Standard bolt-on terminal lugs for secure copper/aluminum wiring</li>
+                                        <li>Calibrated for 40°C ambient industrial environments</li>
+                                        <li>Operating temperature range from -25°C to +70°C</li>
+                                        <li>UL 489 Listed and CSA C22.2 No. 5 Certified</li>
+                                        <li>RoHS and REACH compliant construction</li>
+                                        <li>Integrated trip-free toggle handle with clear ON/OFF/TRIP indicators</li>
+                                        <li>Compatible with rotary operating mechanisms and shunt trips</li>
+                                        <li>Mechanical endurance rated for over 10,000 operations</li>
+                                        <li>Electrical endurance tested up to 4,000 cycles under full load</li>
+                                        <li>Internal arc chutes for rapid fault quenching</li>
+                                        <li>Silver-tungsten contact alloy for extended lifecycle</li>
+                                        <li>Padlockable handle in OFF position for OSHA lockout/tagout</li>
+                                        <li>Dielectric strength tested up to 2,500 VAC</li>
+                                        <li>Bi-directional power feed capability</li>
+                                        <li>3-Year manufacturer limited warranty coverage</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 9: Final Output Call to Action -->
+                        <div class="step-9-output-card" style="margin-top: 24px;">
+                            <div class="step-9-left">
+                                <span class="step-badge" style="background-color: var(--primary); color: #fff;">STEP 9 — OUTPUT</span>
+                                <h3 style="margin-top: 6px; font-size: 18px; font-weight: 700;">Produce Final 2-Sheet Excel Catalog</h3>
+                                <p class="text-muted" style="font-size: 13px;">Click to generate <strong>ProdIntellix_Output.xlsx</strong> containing 252 enriched attributes and all discovered search links.</p>
+                            </div>
+                            <button class="btn btn-primary" onclick="downloadCurrentProductExcel()" style="padding: 14px 28px; font-size: 15px;">
+                                <span class="material-symbols-outlined text-[22px]">table_view</span>
+                                GENERATE OUTPUT (ProdIntellix_Output.xlsx)
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -379,10 +379,7 @@ async function downloadCurrentProductExcel() {
         if (res.ok) {
             const blob = await res.blob();
             const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            const pn = currentProductData.part_number || "Product";
-            a.download = `Product_Intelligence_${pn}_2_Sheets.xlsx`;
+            a.download = "ProdIntellix_Output.xlsx";
             document.body.appendChild(a);
             a.click();
             a.remove();

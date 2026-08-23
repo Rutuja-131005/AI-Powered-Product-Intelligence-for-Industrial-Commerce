@@ -1000,3 +1000,206 @@ body {
 .history-table tbody tr:hover {
     background-color: #faf5f0;
 }
+
+/* ================= 9-Step Judges Demo Flow Styles ================= */
+.step-panel-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    padding: 18px 20px;
+    border-radius: var(--radius-sm);
+}
+
+.step-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.step-badge {
+    background-color: var(--bg-container-elevated);
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    letter-spacing: 0.05em;
+}
+
+.step-badge.warning {
+    background-color: #fff3e0;
+    color: #e65100;
+}
+
+.step-panel-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.rag-chunk-item {
+    background-color: var(--bg-container);
+    border-left: 3px solid var(--primary);
+    padding: 10px 14px;
+    font-size: 12px;
+}
+
+.rag-chunk-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.rag-src-tag { color: var(--primary); }
+.rag-score-tag { color: var(--success); }
+.rag-chunk-text { color: var(--text-main); line-height: 1.4; }
+
+.validation-consensus-box {
+    padding: 8px 0;
+}
+
+.consensus-metric-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.consensus-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+}
+
+.check-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+}
+
+.conflict-alert-box {
+    padding: 4px 0;
+}
+
+.conflict-alert-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #d84315;
+    margin-bottom: 10px;
+}
+
+.conflict-comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.conflict-side {
+    background-color: var(--bg-container);
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.conflict-side.mfr { border-color: var(--primary); }
+
+.conflict-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.conflict-val {
+    font-size: 14px;
+    color: var(--text-main);
+}
+
+.conflict-tag {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 2px;
+    width: fit-content;
+}
+
+.conflict-tag.mfr-tag {
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.conflict-tag.dist-tag {
+    background-color: #eee;
+    color: #666;
+}
+
+.conflict-resolution-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #2e7d32;
+    background-color: #e8f5e9;
+    padding: 8px 12px;
+    border-radius: 2px;
+}
+
+.enrich-subheading {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+}
+
+.enrich-text {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-main);
+}
+
+.app-tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.app-tag {
+    font-size: 10px;
+    font-weight: 600;
+    background-color: var(--bg-container-elevated);
+    padding: 3px 8px;
+    border-radius: 2px;
+    color: var(--text-main);
+}
+
+.features-bullet-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--text-main);
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.step-9-output-card {
+    background: linear-gradient(135deg, var(--bg-container) 0%, var(--bg-container-elevated) 100%);
+    border: 2px solid var(--primary);
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}

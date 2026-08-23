@@ -579,9 +579,7 @@ async def export_single_product_excel_endpoint(request: Dict[str, Any]):
         raise HTTPException(status_code=400, detail="No product data provided for export.")
 
     xlsx_bytes = export_single_product_two_sheet_xlsx(product_record, research_links)
-    pn = product_record.get("PART_NUMBER") or product_record.get("Mfg_Part_Num", "Product")
-    clean_pn = "".join(c for c in str(pn) if c.isalnum() or c in ('-', '_')).strip()
-    filename = f"Product_Intelligence_{clean_pn}_2_Sheets.xlsx"
+    filename = "ProdIntellix_Output.xlsx"
 
     return Response(
         content=xlsx_bytes,
