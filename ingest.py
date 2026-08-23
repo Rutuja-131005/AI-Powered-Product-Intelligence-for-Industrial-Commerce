@@ -6,19 +6,26 @@ Supports PDF, DOCX, TXT with section-aware chunking and ChromaDB persistence.
 import os
 import glob
 import hashlib
-import chromadb
-from chromadb.utils import embedding_functions
 import pypdf
 import docx
 
 CHROMA_PATH = "chroma_db"
 COLLECTION_NAME = "rag_collection"
 MODEL_NAME = "all-MiniLM-L6-v2"
+_CLIENT = None
 _EF = None
+
+def get_client():
+    global _CLIENT
+    if _CLIENT is None:
+        import chromadb
+        _CLIENT = chromadb.PersistentClient(path=CHROMA_PATH)
+    return _CLIENT
 
 def get_ef():
     global _EF
     if _EF is None:
+        from chromadb.utils import embedding_functions
         _EF = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=MODEL_NAME)
     return _EF
 
@@ -108,7 +115,7 @@ def ingest_file(file_path, extra_metadata: dict = None):
         metadatas.append(meta)
         ids.append(f"{filename}_{i}")
 
-    client = chromadb.PersistentClient(path=CHROMA_PATH)
+    client = get_client()
     ef = get_ef()
     collection = client.get_or_create_collection(name=COLLECTION_NAME, embedding_function=ef)
 
@@ -127,12 +134,12 @@ def ingest_directory(directory="data"):
 
 def get_collection_stats():
     try:
-        client = chromadb.PersistentClient(path=CHROMA_PATH)
+        client = get_client()
         ef = get_ef()
         try:
             collection = client.get_collection(name=COLLECTION_NAME, embedding_function=ef)
             return collection.count()
-        except ValueError:
+        except (ValueError, Exception):
             return 0
     except Exception as e:
         print(f"Error getting stats: {e}")
@@ -140,7 +147,7 @@ def get_collection_stats():
 
 def delete_file_embeddings(filename):
     try:
-        client = chromadb.PersistentClient(path=CHROMA_PATH)
+        client = get_client()
         ef = get_ef()
         collection = client.get_collection(name=COLLECTION_NAME, embedding_function=ef)
         collection.delete(where={"source": filename})
