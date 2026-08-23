@@ -415,59 +415,6 @@ ProdIntellix/
 └── docs/
 ```
 
----
-
-# 🚀 Getting Started
-
-## 1. Clone the repository
-
-```bash
-git clone https://github.com/Rutuja-131005/ProdIntellix.git
-cd ProdIntellix
-```
-
-## 2. Create a virtual environment
-
-### Windows
-
-```powershell
-python -m venv venv
-venv\Scripts\activate
-```
-
-### Linux / macOS
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-## 3. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-## 4. Configure environment variables
-
-Create a `.env` file:
-
-```env
-GEMINI_API_KEY=your_gemini_api_key
-OPENROUTER_API_KEY=your_openrouter_api_key
-
-CHROMA_API_KEY=your_chroma_api_key
-CHROMA_TENANT=your_chroma_tenant
-CHROMA_DATABASE=Product-Intelligence
-
-TAVILY_API_KEY=your_tavily_api_key
-FIRECRAWL_API_KEY=your_firecrawl_api_key
-```
-
-Only configure the services enabled in your deployment.
-
----
-
 # ▶️ Run Locally
 
 Start the FastAPI server:
