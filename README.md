@@ -90,7 +90,7 @@ Given a **part number, product description, brand, manufacturer, image/nameplate
 └──────────────┬──────────────┘
                ↓
 ┌─────────────────────────────┐
-│ COMMERCIAL AI ENRICHMENT     │
+│ COMMERCIAL AI ENRICHMENT    │
 │                             │
 │ Descriptions                │
 │ 20 Feature Bullets          │
@@ -105,10 +105,8 @@ Given a **part number, product description, brand, manufacturer, image/nameplate
 │ Evidence & References       │
 └──────────────┬──────────────┘
                ↓
-       XLSX / CSV / Sheets
+          XLSX Sheet
 ```
-
----
 
 # ✨ Key Features
 
@@ -187,7 +185,7 @@ Maps verified product intelligence into the required **252-column schema** and g
                                ↓
                   ┌────────────┴────────────┐
                   ↓                         ↓
-             XLSX / CSV              Google Sheets
+                 XLSX                Google Sheets
 ```
 
 ---
