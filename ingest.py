@@ -134,10 +134,11 @@ def ingest_directory(directory="data"):
 
 def get_collection_stats():
     try:
+        if not os.path.exists(CHROMA_PATH):
+            return 0
         client = get_client()
-        ef = get_ef()
         try:
-            collection = client.get_collection(name=COLLECTION_NAME, embedding_function=ef)
+            collection = client.get_collection(name=COLLECTION_NAME)
             return collection.count()
         except (ValueError, Exception):
             return 0
@@ -147,9 +148,10 @@ def get_collection_stats():
 
 def delete_file_embeddings(filename):
     try:
+        if not os.path.exists(CHROMA_PATH):
+            return True
         client = get_client()
-        ef = get_ef()
-        collection = client.get_collection(name=COLLECTION_NAME, embedding_function=ef)
+        collection = client.get_collection(name=COLLECTION_NAME)
         collection.delete(where={"source": filename})
         return True
     except Exception as e:
