@@ -70,7 +70,7 @@ class GoogleSheetsSync:
                 APPS_SCRIPT_WEBAPP_URL,
                 json=payload,
                 headers={"Content-Type": "application/json"},
-                timeout=10,
+                timeout=3,
                 allow_redirects=True
             )
             return {
