@@ -9,25 +9,19 @@ import hashlib
 import pypdf
 import docx
 
+from chroma_cloud_client import (
+    get_chroma_client as get_client,
+    get_embedding_function as get_ef,
+    chunk_text_line_based,
+    DEFAULT_COLLECTION as COLLECTION_NAME,
+    CHROMA_HOST,
+    CHROMA_TENANT,
+    CHROMA_DATABASE,
+    CHROMA_API_KEY
+)
+
 CHROMA_PATH = "chroma_db"
-COLLECTION_NAME = "rag_collection"
 MODEL_NAME = "all-MiniLM-L6-v2"
-_CLIENT = None
-_EF = None
-
-def get_client():
-    global _CLIENT
-    if _CLIENT is None:
-        import chromadb
-        _CLIENT = chromadb.PersistentClient(path=CHROMA_PATH)
-    return _CLIENT
-
-def get_ef():
-    global _EF
-    if _EF is None:
-        from chromadb.utils import embedding_functions
-        _EF = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=MODEL_NAME)
-    return _EF
 
 def parse_pdf(file_path):
     text = ""

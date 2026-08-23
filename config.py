@@ -20,10 +20,16 @@ os.makedirs(CHROMA_DIR, exist_ok=True)
 # Database Configuration
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DATA_DIR / 'catalog.db'}")
 
+# Chroma Cloud Configuration
+CHROMA_HOST = os.getenv("CHROMA_HOST", "api.trychroma.com")
+CHROMA_API_KEY = os.getenv("CHROMA_API_KEY", "")
+CHROMA_TENANT = os.getenv("CHROMA_TENANT", "8092f213-aef2-4d28-b9c8-ec7c84e7ad0d")
+CHROMA_DATABASE = os.getenv("CHROMA_DATABASE", "Product-Intelligence")
+CHROMA_COLLECTION_NAME = os.getenv("CHROMA_COLLECTION_NAME", "Product_Intelligence_Catalog")
+
 # AI / Model Configuration
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
-CHROMA_COLLECTION_NAME = os.getenv("CHROMA_COLLECTION_NAME", "rag_collection")
 
 # Batch Processing & Rate Limits
 MAX_CONCURRENT_TASKS = int(os.getenv("MAX_CONCURRENT_TASKS", "10"))

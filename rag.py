@@ -8,27 +8,32 @@ import chromadb
 from chromadb.utils import embedding_functions
 from dotenv import load_dotenv
 from services.openrouter_service import OpenRouterLLM
+from chroma_cloud_client import (
+    get_chroma_client,
+    get_embedding_function,
+    get_or_create_collection,
+    DEFAULT_COLLECTION as COLLECTION_NAME,
+    CHROMA_HOST,
+    CHROMA_TENANT,
+    CHROMA_DATABASE,
+    CHROMA_API_KEY
+)
 
 load_dotenv()
 
-CHROMA_PATH = "chroma_db"
-COLLECTION_NAME = "rag_collection"
 MODEL_NAME = "all-MiniLM-L6-v2"
 
 def query_rag(query_text, history=None):
     """
-    Executes grounded semantic search on Vector DB and answers using OpenRouter LLM / Gemini.
+    Executes grounded semantic search on Chroma Cloud Vector DB and answers using OpenRouter LLM.
     """
     if history is None:
         history = []
 
-    client = chromadb.PersistentClient(path=CHROMA_PATH)
-    ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=MODEL_NAME)
-    
     try:
-        collection = client.get_or_create_collection(name=COLLECTION_NAME, embedding_function=ef)
-    except Exception:
-        return {"answer": "Vector DB not initialized. Please upload technical documents or ingest products first.", "citations": []}
+        collection = get_or_create_collection(COLLECTION_NAME)
+    except Exception as e:
+        return {"answer": f"Vector DB connection error: {e}", "citations": []}
 
     search_query = query_text
 
