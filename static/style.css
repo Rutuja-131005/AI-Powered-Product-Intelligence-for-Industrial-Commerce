@@ -86,12 +86,17 @@ body {
     gap: 10px;
 }
 
-.brand-logo-img {
+.brand-badge-icon {
     width: 36px;
     height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid rgba(255,255,255,0.15);
+    background: linear-gradient(135deg, #4a2818 0%, #2c1810 100%);
+    border: 1.5px solid #a2664d;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .brand-title {
