@@ -11,8 +11,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
-CHROMA_DIR = BASE_DIR / "chroma_db"
+IS_VERCEL = os.getenv("VERCEL") == "1" or bool(os.getenv("AWS_LAMBDA_FUNCTION_NAME"))
+
+if IS_VERCEL:
+    DATA_DIR = Path("/tmp/data")
+    CHROMA_DIR = Path("/tmp/chroma_db")
+else:
+    DATA_DIR = BASE_DIR / "data"
+    CHROMA_DIR = BASE_DIR / "chroma_db"
 
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(CHROMA_DIR, exist_ok=True)

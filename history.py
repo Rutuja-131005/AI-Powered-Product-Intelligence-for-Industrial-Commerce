@@ -2,7 +2,7 @@ import json
 import os
 import time
 
-HISTORY_FILE = "history.json"
+HISTORY_FILE = "/tmp/history.json" if os.getenv("VERCEL") == "1" else "history.json"
 
 def _load_data():
     if not os.path.exists(HISTORY_FILE):
