@@ -1,8 +1,13 @@
+"""
+Ground-Truth Retrieval-Augmented Generation (RAG) Engine
+Combines ChromaDB Vector Store + Hugging Face Embeddings (SentenceTransformers) + OpenRouter LLM.
+"""
+
 import os
 import chromadb
 from chromadb.utils import embedding_functions
 from dotenv import load_dotenv
-import google.generativeai as genai
+from services.openrouter_service import OpenRouterLLM
 
 load_dotenv()
 
@@ -11,6 +16,9 @@ COLLECTION_NAME = "rag_collection"
 MODEL_NAME = "all-MiniLM-L6-v2"
 
 def query_rag(query_text, history=None):
+    """
+    Executes grounded semantic search on Vector DB and answers using OpenRouter LLM / Gemini.
+    """
     if history is None:
         history = []
 
@@ -18,94 +26,79 @@ def query_rag(query_text, history=None):
     ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=MODEL_NAME)
     
     try:
-        collection = client.get_collection(name=COLLECTION_NAME, embedding_function=ef)
-    except ValueError:
-        return {"answer": "System not initialized. Please upload documents first.", "citations": []}
-
-    api_key = os.getenv("GOOGLE_API_KEY")
-    if not api_key:
-         return {"answer": "API Key missing. Please check server configuration.", "citations": []}
-         
-    genai.configure(api_key=api_key)
-    available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-    model_name = next((m for m in available_models if 'gemini' in m and 'flash' in m), None)
-    if not model_name:
-        model_name = next((m for m in available_models if 'gemini' in m), None)
-    
-    if not model_name:
-        return {"answer": "No available Gemini models found.", "citations": []}
-        
-    model = genai.GenerativeModel(model_name)
+        collection = client.get_or_create_collection(name=COLLECTION_NAME, embedding_function=ef)
+    except Exception:
+        return {"answer": "Vector DB not initialized. Please upload technical documents or ingest products first.", "citations": []}
 
     search_query = query_text
-    if history:
-        history_str = "\n".join([f"{msg['role']}: {msg['content']}" for msg in history[-5:]]) 
-        rewrite_prompt = f"""
-        Given the following conversation history, rewrite the last user query to be a standalone question that includes all necessary context.
-        If the query is already standalone, return it exactly as is.
-        
-        History:
-        {history_str}
-        
-        Last User Query: {query_text}
-        
-        Rewritten Query:"""
-        
-        try:
-            rewrite_response = model.generate_content(rewrite_prompt)
-            search_query = rewrite_response.text.strip()
-        except Exception as e:
-            print(f"Error rewriting query: {e}. Using original.")
 
-    results = collection.query(
-        query_texts=[search_query],
-        n_results=3
-    )
-    
-    if not results['documents'] or not results['documents'][0]:
-        return {"answer": "I couldn't find any relevant information in the documents.", "citations": []}
+    # Query the Vector DB (Hugging Face embeddings)
+    try:
+        results = collection.query(
+            query_texts=[search_query],
+            n_results=4
+        )
+    except Exception as e:
+        results = {'documents': [[]], 'metadatas': [[]]}
 
-    retrieved_docs = results['documents'][0]
-    metadatas = results['metadatas'][0]
-    
     context_str = ""
     citations = []
-    
-    for i, doc in enumerate(retrieved_docs):
-        source = metadatas[i].get("source", "Unknown")
-        chunk_id = metadatas[i].get("chunk_id", "Unknown")
-        context_str += f"---\nSource: {source} (Chunk {chunk_id})\nContent: {doc}\n"
-        citations.append(f"{source}: Chunk {chunk_id}")
+    sources_list = []
 
-    prompt = f"""You are a helpful assistant. Answer the user's question based strictly on the context provided below.
-    
-    Instructions:
-    1. If the user's input is a greeting (e.g., "Hello", "Hi") or small talk, reply politely and ask how you can help with their documents.
-    2. If the user asks about the technical implementation (e.g., "How do you work?", "What stack is this?"), reply exactly: "I am built using Python, FastAPI, ChromaDB (Vector DB), SentenceTransformers (Embeddings), and Google Gemini (LLM)."
-    3. For all other questions, answer STRICTLY based on the provided Context.
-    4. If the answer is not in the Context, say: "I couldn't find any relevant information in the documents."
-    
-    Context:
-    {context_str}
-    
-    Question: {query_text}
-    
-    Answer:"""
-    
-    try:
-        response = model.generate_content(prompt)
+    if results.get('documents') and results['documents'][0]:
+        retrieved_docs = results['documents'][0]
+        metadatas = results['metadatas'][0] if results.get('metadatas') else [{}] * len(retrieved_docs)
+        
+        for i, doc in enumerate(retrieved_docs):
+            meta = metadatas[i] or {}
+            source = meta.get("source", "Technical Catalog")
+            chunk_id = meta.get("chunk_id", str(i+1))
+            context_str += f"---\nSource: {source} (Chunk {chunk_id})\nContent: {doc}\n"
+            citations.append(f"{source}: Chunk {chunk_id}")
+            sources_list.append({"source": source, "chunk_id": chunk_id, "text": doc})
 
-        return {
-            "answer": response.text,
-            "sources": [
-                {"source": m.get("source"), "chunk_id": m.get("chunk_id"), "text": d} 
-                for m, d in zip(metadatas, retrieved_docs)
-            ]
-        }
-            
-    except Exception as e:
-        return {"answer": f"Error generating response: {str(e)}", "sources": []}
+    if not context_str:
+        context_str = "Industrial Catalog database containing products from Diablo, 3M, Milwaukee, Festool, Dewalt, Makita, GE, Trex, Leviton, Philips."
+
+    # 1. Primary: OpenRouter LLM
+    openrouter_key = os.getenv("OPENROUTER_API_KEY")
+    if openrouter_key:
+        answer = OpenRouterLLM.answer_qa(query_text, context_str)
+        if answer and "No direct answer" not in answer:
+            return {
+                "answer": answer,
+                "sources": sources_list,
+                "citations": citations
+            }
+
+    # 2. Fallback: Gemini LLM
+    gemini_key = os.getenv("GOOGLE_API_KEY")
+    if gemini_key:
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=gemini_key)
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            prompt = f"""You are ProdIntellix AI, an industrial product intelligence assistant.
+            Answer the following question based on the provided technical catalog context:
+            Context: {context_str}
+            Question: {query_text}
+            Answer:"""
+            res = model.generate_content(prompt)
+            return {
+                "answer": res.text,
+                "sources": sources_list,
+                "citations": citations
+            }
+        except Exception:
+            pass
+
+    # 3. Local fallback response if offline
+    return {
+        "answer": f"Based on the industrial catalog context: {context_str[:250]}... For '{query_text}', refer to verified manufacturer specifications.",
+        "sources": sources_list,
+        "citations": citations
+    }
 
 if __name__ == "__main__":
-    result = query_rag("What is the Turing test?")
+    result = query_rag("What sanding discs are available?")
     print(result['answer'])

@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.env
+.env
+history.json
 .venv/
 env/
 venv/
@@ -10,6 +12,7 @@ venv/
 # Chroma DB / SQLite databases
 chroma_db/
 data/catalog.db
+data/*.db
 
 # OS / IDE
 .DS_Store

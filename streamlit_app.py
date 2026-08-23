@@ -5,9 +5,6 @@ import pandas as pd
 import io
 from pathlib import Path
 
-# Add the Document RAG System directory to the path
-sys.path.insert(0, str(Path(__file__).parent / "Document RAG System"))
-
 try:
     from rag import query_rag
     from ingest import ingest_file, get_collection_stats
@@ -48,7 +45,7 @@ if mode == "⚙️ AI Product Intelligence Studio":
     with col_demo:
         st.markdown("#### Quick Evaluation Fixtures")
         if st.button("⚡ Load 100 Sample Parts"):
-            sample_path = "Document RAG System/data/sample_industrial_input.csv"
+            sample_path = "data/sample_industrial_input.csv"
             if not os.path.exists(sample_path):
                 generate_sample_csv(sample_path, total_rows=1000)
             sample_df = pd.read_csv(sample_path).iloc[:100]
@@ -57,7 +54,7 @@ if mode == "⚙️ AI Product Intelligence Studio":
             st.success("Loaded 100 industrial parts!")
 
         if st.button("🚀 Load 1,000 Evaluation Set"):
-            sample_path = "Document RAG System/data/sample_industrial_input.csv"
+            sample_path = "data/sample_industrial_input.csv"
             if not os.path.exists(sample_path):
                 generate_sample_csv(sample_path, total_rows=1000)
             sample_df = pd.read_csv(sample_path)
