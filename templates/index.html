@@ -5,8 +5,9 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>ProdIntellix | AI-Powered Product Intelligence</title>
     
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/static/logo.png"/>
-    <link rel="shortcut icon" href="/static/favicon.ico"/>
+    <link rel="shortcut icon" href="/static/logo.png"/>
     
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,7 +24,7 @@
         <!-- ================= Fixed Sidebar ================= -->
         <aside class="app-sidebar">
             <div class="brand-container">
-                <img src="/static/logo.png" alt="ProdIntellix" class="brand-logo-img"/>
+                <img src="/static/logo.png" alt="ProdIntellix Logo" class="brand-logo-img"/>
                 <div class="brand-details">
                     <h1 class="brand-title">ProdIntellix</h1>
                     <span class="brand-tag">AI-Powered Product Intelligence</span>
@@ -93,43 +94,41 @@
                     <span class="input-card-tag">INSTANT MULTI-WEBSITE RESEARCH</span>
                     <div class="search-bar-row">
                         <span class="material-symbols-outlined text-outline text-[22px]">search</span>
-                        <input type="text" id="quick-research-input" placeholder="Enter Part Number, Product Description, or Model (e.g., 140U-J0D3-C40, DCF860B, WDTS7024RZ)..." onkeydown="if(event.key==='Enter') executeQuickResearch()"/>
+                        <input type="text" id="quick-research-input" placeholder="Enter Part Number, Product Description, or Model (e.g., DCF860B, Diablo Cut-Off Disc, 140U-J0D3-C40)..." onkeydown="if(event.key==='Enter') executeQuickResearch()"/>
                         <button class="btn btn-primary" onclick="executeQuickResearch()">
                             <span class="material-symbols-outlined text-[18px]">travel_explore</span>
                             RESEARCH WEBSITES
                         </button>
                     </div>
-
-                    <!-- What Can I Search Examples Chips -->
-                    <div class="search-examples-row">
-                        <span class="search-examples-label"><span class="material-symbols-outlined text-[14px]">lightbulb</span> Try Searching:</span>
-                        <button class="search-chip" onclick="setSearchQuery('Allen-Bradley 140U-J0D3-C40')">140U-J0D3-C40 (Circuit Breaker)</button>
-                        <button class="search-chip" onclick="setSearchQuery('Dewalt DCF860B')">Dewalt DCF860B (Impact Driver)</button>
-                        <button class="search-chip" onclick="setSearchQuery('Whirlpool WDTS7024RZ')">Whirlpool WDTS7024RZ</button>
-                        <button class="search-chip" onclick="setSearchQuery('Diablo D0724A')">Diablo D0724A (Saw Blade)</button>
-                        <button class="search-chip" onclick="setSearchQuery('Milwaukee 2804-20')">Milwaukee 2804-20</button>
-                        <button class="search-chip" onclick="setSearchQuery('Siemens 3RT2015')">Siemens 3RT2015</button>
-                    </div>
                 </div>
 
-                <!-- Multimodal Unified Dropzones (Single Box for PDF + Image, Plus Batch Catalog) -->
+                <!-- Multimodal Dropzones (Image, PDF, Bulk File) -->
                 <div class="upload-grid-layout" style="margin-top: 24px;">
-                    <!-- Single Unified Dropzone for Image or PDF -->
-                    <div class="upload-card" onclick="triggerInput('unified-file-input')">
-                        <span class="material-symbols-outlined upload-card-icon">photo_library</span>
-                        <h3 class="upload-card-title">Upload Product Image or Spec PDF</h3>
-                        <p class="upload-card-desc">Visual OCR, label extraction, technical datasheets, CAD drawings, manuals, and automatic 50 attribute extraction.</p>
-                        <input type="file" id="unified-file-input" accept=".pdf,image/*" style="display: none;" onchange="handleUnifiedUpload(event)"/>
-                        <button class="btn btn-primary btn-sm" style="margin-top: 10px;">SELECT IMAGE OR PDF</button>
+                    <!-- Image Ingestion Dropzone -->
+                    <div class="upload-card" onclick="triggerInput('image-file-input')">
+                        <span class="material-symbols-outlined upload-card-icon">photo_camera</span>
+                        <h3 class="upload-card-title">Upload Product Image</h3>
+                        <p class="upload-card-desc">Visual OCR, label extraction, multi-website research & instant dashboard preview.</p>
+                        <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)"/>
+                        <button class="btn btn-primary btn-sm">SELECT IMAGE</button>
+                    </div>
+
+                    <!-- PDF Ingestion Dropzone -->
+                    <div class="upload-card" onclick="triggerInput('pdf-file-input')">
+                        <span class="material-symbols-outlined upload-card-icon">picture_as_pdf</span>
+                        <h3 class="upload-card-title">Upload Spec PDF</h3>
+                        <p class="upload-card-desc">Parse technical datasheets, CAD drawings, manuals, and extract 50 attribute triplets.</p>
+                        <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;" onchange="handlePdfUpload(event)"/>
+                        <button class="btn btn-secondary btn-sm">SELECT PDF</button>
                     </div>
 
                     <!-- Bulk Dataset Ingestion Dropzone -->
                     <div class="upload-card" onclick="triggerInput('csv-file-input')">
                         <span class="material-symbols-outlined upload-card-icon">table_view</span>
-                        <h3 class="upload-card-title">Upload Batch Catalog (1,000 Rows)</h3>
-                        <p class="upload-card-desc">Process multiple sparse industrial parts, match multi-source data, and populate 252-column intelligence records.</p>
+                        <h3 class="upload-card-title">Upload Batch Catalog</h3>
+                        <p class="upload-card-desc">Process multiple sparse industrial parts and populate intelligence records.</p>
                         <input type="file" id="csv-file-input" accept=".csv,.xlsx,.xls" style="display: none;" onchange="handleCsvUpload(event)"/>
-                        <button class="btn btn-outline btn-sm" style="margin-top: 10px;">SELECT DATASET</button>
+                        <button class="btn btn-outline btn-sm">SELECT DATASET</button>
                     </div>
                 </div>
 
@@ -159,43 +158,6 @@
                         <div class="links-cards-grid" id="res-links-grid">
                             <!-- Populated via JS -->
                         </div>
-                    </div>
-                </div>
-
-                <!-- Recent Research History on Input View -->
-                <div class="history-card" style="margin-top: 32px;">
-                    <div class="history-header-row">
-                        <div>
-                            <h3 class="pipeline-title">Recent Research History</h3>
-                            <p class="text-muted" style="font-size: 13px;">Recently researched products and past queries. Click 'VIEW' to load onto the Product Dashboard.</p>
-                        </div>
-                        <button class="btn btn-outline btn-sm" onclick="loadResearchHistory()">
-                            <span class="material-symbols-outlined text-[16px]">refresh</span>
-                            REFRESH HISTORY
-                        </button>
-                    </div>
-
-                    <div class="history-table-wrapper" style="margin-top: 16px;">
-                        <table class="history-table">
-                            <thead>
-                                <tr>
-                                    <th>PART NUMBER</th>
-                                    <th>BRAND</th>
-                                    <th>PRODUCT TITLE</th>
-                                    <th>CATEGORY</th>
-                                    <th>CONFIDENCE</th>
-                                    <th>TIME</th>
-                                    <th style="text-align: right;">ACTION</th>
-                                </tr>
-                            </thead>
-                            <tbody id="history-table-body-input">
-                                <tr>
-                                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">
-                                        Loading research history...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </main>

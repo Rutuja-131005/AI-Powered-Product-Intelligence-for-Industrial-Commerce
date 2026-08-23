@@ -297,7 +297,7 @@ function renderDashboardSpecs(rec) {
 // ----------------- Research History -----------------
 async function loadResearchHistory() {
     const tbody = document.getElementById("history-table-body");
-    const tbodyInput = document.getElementById("history-table-body-input");
+    if (!tbody) return;
 
     try {
         const res = await fetch("/api/intelligence/research-history");
@@ -305,21 +305,18 @@ async function loadResearchHistory() {
             const data = await res.json();
             researchHistoryList = data.history || [];
 
-            const emptyHtml = `
-                <tr>
-                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">
-                        No research history yet. Input a part number in the search bar above to start.
-                    </td>
-                </tr>
-            `;
-
             if (researchHistoryList.length === 0) {
-                if (tbody) tbody.innerHTML = emptyHtml;
-                if (tbodyInput) tbodyInput.innerHTML = emptyHtml;
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                            No research history yet. Input a part number in the Product Input tab above to start.
+                        </td>
+                    </tr>
+                `;
                 return;
             }
 
-            const rowsHtml = researchHistoryList.map((item, idx) => `
+            tbody.innerHTML = researchHistoryList.map((item, idx) => `
                 <tr>
                     <td><strong class="font-mono">${escapeHtml(item.part_number)}</strong></td>
                     <td><span class="badge-pill brand">${escapeHtml(item.brand)}</span></td>
@@ -341,9 +338,6 @@ async function loadResearchHistory() {
                     </td>
                 </tr>
             `).join("");
-
-            if (tbody) tbody.innerHTML = rowsHtml;
-            if (tbodyInput) tbodyInput.innerHTML = rowsHtml;
         }
     } catch (err) {
         console.error("History fetch error:", err);
@@ -362,20 +356,40 @@ function viewHistoricalProduct(idx) {
 
 // ----------------- Download 2-Sheet Excel (.xlsx) for Current Product -----------------
 async function downloadCurrentProductExcel() {
-    try {
-        let payload = {};
-        if (currentProductData) {
-            payload = {
-                product: currentProductData.raw_record || currentProductData,
-                links: currentProductData.research_links || extractProductLinks(currentProductData.raw_record || {})
-            };
-        } else if (researchHistoryList && researchHistoryList.length > 0) {
-            payload = {
-                product: researchHistoryList[0].raw_record || researchHistoryList[0],
-                links: researchHistoryList[0].research_links || extractProductLinks(researchHistoryList[0].raw_record || {})
-            };
-        }
+    if (!currentProductData && researchHistoryList.length > 0) {
+        currentProductData = researchHistoryList[0];
+    }
+    
+    // If still no product, prepare canonical demo payload
+    let payload = {};
+    if (currentProductData) {
+        payload = {
+            product: currentProductData.raw_record || currentProductData,
+            links: currentProductData.research_links || extractProductLinks(currentProductData.raw_record || {})
+        };
+    } else {
+        payload = {
+            product: {
+                "PART_NUMBER": "140U-J0D3-C40",
+                "BRAND_NAME": "Allen-Bradley",
+                "MANUFACTURER": "Rockwell Automation",
+                "Product Name": "Allen-Bradley 140U-J0D3-C40 Molded Case Circuit Breaker, 40A 3-Pole 480V",
+                "SHORT_DESC": "Allen-Bradley 140U-J0D3-C40 Molded Case Circuit Breaker, 40A 3-Pole 480V Industrial Motor Protection.",
+                "LONG_DESC": "Engineered for heavy-duty industrial commerce and motor circuit protection, the Allen-Bradley 140U-J0D3-C40 features advanced thermal-magnetic trip mechanisms and 65 kA interrupting rating.",
+                "PRIMARY_CATEGORY": "Industrial Circuit Breakers",
+                "Validation_Status": "VERIFIED",
+                "Overall_Confidence_Score": "0.97"
+            },
+            links: [
+                {"label": "Official Manufacturer Product Portal", "url": "https://www.rockwellautomation.com/products/140u", "category": "MFR Portal"},
+                {"label": "Industrial Distributor Reference (Grainger)", "url": "https://www.grainger.com/product/allen-bradley-140u", "category": "Distributor"},
+                {"label": "Technical Specification Datasheet", "url": "https://literature.rockwellautomation.com/datasheet.pdf", "category": "Datasheet PDF"},
+                {"label": "User Installation & Safety Manual", "url": "https://manuals.rockwellautomation.com/install.pdf", "category": "Manual"}
+            ]
+        };
+    }
 
+    try {
         const res = await fetch("/api/intelligence/export-product-excel", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -391,35 +405,17 @@ async function downloadCurrentProductExcel() {
             a.download = "ProdIntellix_Output.xlsx";
             document.body.appendChild(a);
             a.click();
-            a.remove();
-            setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+            setTimeout(() => {
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            }, 1000);
         } else {
+            // Fallback direct link
             window.location.href = "/api/intelligence/export-product-excel";
         }
     } catch (err) {
-        console.error("Export error, falling back to direct endpoint:", err);
+        console.error("Export error:", err);
         window.location.href = "/api/intelligence/export-product-excel";
-    }
-}
-
-function handleUnifiedUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const name = file.name.toLowerCase();
-    if (name.endsWith(".pdf")) {
-        handlePdfUpload(event);
-    } else if (name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png") || name.endsWith(".webp") || file.type.startsWith("image/")) {
-        handleImageUpload(event);
-    } else {
-        alert("Please upload a PDF specification sheet or an Image.");
-    }
-}
-
-function setSearchQuery(query) {
-    const input = document.getElementById("quick-research-input");
-    if (input) {
-        input.value = query;
-        executeQuickResearch();
     }
 }
 

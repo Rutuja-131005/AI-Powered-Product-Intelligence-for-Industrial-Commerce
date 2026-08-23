@@ -571,6 +571,7 @@ async def export_single_product_excel_endpoint(request: Optional[Dict[str, Any]]
     """
     product_record = {}
     research_links = []
+
     if request and isinstance(request, dict):
         product_record = request.get("product") or request.get("raw_record") or {}
         research_links = request.get("links") or request.get("research_links") or []
@@ -581,11 +582,11 @@ async def export_single_product_excel_endpoint(request: Optional[Dict[str, Any]]
         research_links = RESEARCH_HISTORY[0].get("research_links", [])
 
     if not product_record:
-        # Fallback to standard researched catalog record
+        # Generate canonical fallback demo record
         from sources.research_service import ProductResearchService
-        res = ProductResearchService.research_query("Allen-Bradley 140U-J0D3-C40")
-        product_record = res.get("raw_record", {})
-        research_links = res.get("research_links", [])
+        demo_res = ProductResearchService.research_query("140U-J0D3-C40", brand_hint="Allen-Bradley")
+        product_record = demo_res.get("raw_record", {})
+        research_links = demo_res.get("research_links", [])
 
     xlsx_bytes = export_single_product_two_sheet_xlsx(product_record, research_links)
     filename = "ProdIntellix_Output.xlsx"
