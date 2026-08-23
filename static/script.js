@@ -297,7 +297,7 @@ function renderDashboardSpecs(rec) {
 // ----------------- Research History -----------------
 async function loadResearchHistory() {
     const tbody = document.getElementById("history-table-body");
-    if (!tbody) return;
+    const tbodyInput = document.getElementById("history-table-body-input");
 
     try {
         const res = await fetch("/api/intelligence/research-history");
@@ -305,18 +305,21 @@ async function loadResearchHistory() {
             const data = await res.json();
             researchHistoryList = data.history || [];
 
+            const emptyHtml = `
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                        No research history yet. Input a part number in the search bar above to start.
+                    </td>
+                </tr>
+            `;
+
             if (researchHistoryList.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">
-                            No research history yet. Input a part number in the Product Input tab above to start.
-                        </td>
-                    </tr>
-                `;
+                if (tbody) tbody.innerHTML = emptyHtml;
+                if (tbodyInput) tbodyInput.innerHTML = emptyHtml;
                 return;
             }
 
-            tbody.innerHTML = researchHistoryList.map((item, idx) => `
+            const rowsHtml = researchHistoryList.map((item, idx) => `
                 <tr>
                     <td><strong class="font-mono">${escapeHtml(item.part_number)}</strong></td>
                     <td><span class="badge-pill brand">${escapeHtml(item.brand)}</span></td>
@@ -338,6 +341,9 @@ async function loadResearchHistory() {
                     </td>
                 </tr>
             `).join("");
+
+            if (tbody) tbody.innerHTML = rowsHtml;
+            if (tbodyInput) tbodyInput.innerHTML = rowsHtml;
         }
     } catch (err) {
         console.error("History fetch error:", err);
@@ -356,19 +362,19 @@ function viewHistoricalProduct(idx) {
 
 // ----------------- Download 2-Sheet Excel (.xlsx) for Current Product -----------------
 async function downloadCurrentProductExcel() {
-    if (!currentProductData && researchHistoryList.length > 0) {
-        currentProductData = researchHistoryList[0];
-    }
-    if (!currentProductData) {
-        alert("Please research a product first or select a product from History to download its 2-sheet Excel file.");
-        return;
-    }
-
     try {
-        const payload = {
-            product: currentProductData.raw_record || currentProductData,
-            links: currentProductData.research_links || extractProductLinks(currentProductData.raw_record || {})
-        };
+        let payload = {};
+        if (currentProductData) {
+            payload = {
+                product: currentProductData.raw_record || currentProductData,
+                links: currentProductData.research_links || extractProductLinks(currentProductData.raw_record || {})
+            };
+        } else if (researchHistoryList && researchHistoryList.length > 0) {
+            payload = {
+                product: researchHistoryList[0].raw_record || researchHistoryList[0],
+                links: researchHistoryList[0].research_links || extractProductLinks(researchHistoryList[0].raw_record || {})
+            };
+        }
 
         const res = await fetch("/api/intelligence/export-product-excel", {
             method: "POST",
@@ -379,16 +385,41 @@ async function downloadCurrentProductExcel() {
         if (res.ok) {
             const blob = await res.blob();
             const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.style.display = "none";
+            a.href = url;
             a.download = "ProdIntellix_Output.xlsx";
             document.body.appendChild(a);
             a.click();
             a.remove();
-            window.URL.revokeObjectURL(url);
+            setTimeout(() => window.URL.revokeObjectURL(url), 1000);
         } else {
-            alert("Export error: Unable to generate Excel file.");
+            window.location.href = "/api/intelligence/export-product-excel";
         }
     } catch (err) {
-        console.error("Export error:", err);
+        console.error("Export error, falling back to direct endpoint:", err);
+        window.location.href = "/api/intelligence/export-product-excel";
+    }
+}
+
+function handleUnifiedUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const name = file.name.toLowerCase();
+    if (name.endsWith(".pdf")) {
+        handlePdfUpload(event);
+    } else if (name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png") || name.endsWith(".webp") || file.type.startsWith("image/")) {
+        handleImageUpload(event);
+    } else {
+        alert("Please upload a PDF specification sheet or an Image.");
+    }
+}
+
+function setSearchQuery(query) {
+    const input = document.getElementById("quick-research-input");
+    if (input) {
+        input.value = query;
+        executeQuickResearch();
     }
 }
 

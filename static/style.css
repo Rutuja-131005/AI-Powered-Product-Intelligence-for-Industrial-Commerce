@@ -86,17 +86,15 @@ body {
     gap: 10px;
 }
 
-.brand-badge-icon {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, #4a2818 0%, #2c1810 100%);
-    border: 1.5px solid #a2664d;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.brand-logo-img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     flex-shrink: 0;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .brand-title {
@@ -404,15 +402,51 @@ body {
     outline: none;
     font-size: 14px;
     color: var(--text-main);
-    padding: 8px 4px;
-    font-family: var(--font-main);
+.search-examples-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+    font-size: 12px;
+}
+
+.search-examples-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.search-chip {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: var(--font-mono);
+}
+
+.search-chip:hover {
+    border-color: var(--primary);
+    background-color: rgba(133, 78, 54, 0.08);
+    color: var(--primary);
+    transform: translateY(-1px);
 }
 
 /* ================= Multimodal Upload Dropzones ================= */
 .upload-grid-layout {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
 .upload-card {

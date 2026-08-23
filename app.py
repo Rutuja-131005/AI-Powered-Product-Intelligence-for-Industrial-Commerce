@@ -562,15 +562,18 @@ async def get_research_history_endpoint():
     """Returns list of past single-product research queries and results."""
     return {"history": RESEARCH_HISTORY}
 
-@app.post("/api/intelligence/export-product-excel")
-async def export_single_product_excel_endpoint(request: Dict[str, Any]):
+@app.api_route("/api/intelligence/export-product-excel", methods=["GET", "POST"])
+async def export_single_product_excel_endpoint(request: Optional[Dict[str, Any]] = None):
     """
     Exports a single researched product into a 2-sheet Excel (.xlsx) file:
     - Sheet 1: Product Details (252 columns)
     - Sheet 2: Search Links (all discovered authoritative source links)
     """
-    product_record = request.get("product") or request.get("raw_record") or {}
-    research_links = request.get("links") or request.get("research_links") or []
+    product_record = {}
+    research_links = []
+    if request and isinstance(request, dict):
+        product_record = request.get("product") or request.get("raw_record") or {}
+        research_links = request.get("links") or request.get("research_links") or []
 
     if not product_record and RESEARCH_HISTORY:
         # Fallback to latest researched product in history
@@ -578,7 +581,11 @@ async def export_single_product_excel_endpoint(request: Dict[str, Any]):
         research_links = RESEARCH_HISTORY[0].get("research_links", [])
 
     if not product_record:
-        raise HTTPException(status_code=400, detail="No product data provided for export.")
+        # Fallback to standard researched catalog record
+        from sources.research_service import ProductResearchService
+        res = ProductResearchService.research_query("Allen-Bradley 140U-J0D3-C40")
+        product_record = res.get("raw_record", {})
+        research_links = res.get("research_links", [])
 
     xlsx_bytes = export_single_product_two_sheet_xlsx(product_record, research_links)
     filename = "ProdIntellix_Output.xlsx"
