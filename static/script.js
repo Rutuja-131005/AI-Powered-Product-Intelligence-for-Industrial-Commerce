@@ -38,6 +38,14 @@ function triggerInput(id) {
     document.getElementById(id).click();
 }
 
+function quickSearchTopic(topic) {
+    const input = document.getElementById("quick-research-input");
+    if (input) {
+        input.value = topic;
+        executeQuickResearch();
+    }
+}
+
 // ----------------- Quick Multi-Website Research Query -----------------
 async function executeQuickResearch() {
     const input = document.getElementById("quick-research-input");
