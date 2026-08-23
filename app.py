@@ -30,7 +30,7 @@ from jobs.processor import JobProcessor
 from export.output_schema import FINAL_252_HEADERS
 from export.exporter import export_catalog_to_csv, export_catalog_to_xlsx, export_single_product_two_sheet_xlsx
 
-app = FastAPI(title="AI-Powered Product Intelligence for Industrial Commerce")
+app = FastAPI(title="ProdIntellix — AI-Powered Product Intelligence")
 
 os.makedirs("data", exist_ok=True)
 
