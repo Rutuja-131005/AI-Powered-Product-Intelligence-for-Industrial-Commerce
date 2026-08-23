@@ -600,18 +600,3 @@ into a single workflow.
 * Large-scale asynchronous catalog processing
 * Advanced product similarity and recommendation
 * Automated catalog quality scoring
-
----
-
-# 👥 Team
-
-**ProdIntellix**
-AI-Powered Product Intelligence for Industrial Commerce
-
-Built for the **Hack2Skill / Industrial Commerce Product Intelligence Challenge**.
-
----
-
-## 📜 License
-
-This project is developed as a hackathon/prototype solution. Add an appropriate open-source license if you plan to publish the code for general reuse.
