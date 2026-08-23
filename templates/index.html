@@ -45,13 +45,7 @@
             </nav>
 
             <div class="sidebar-footer">
-                <div class="user-profile-card">
-                    <div class="user-avatar">RJ</div>
-                    <div class="user-info">
-                        <span class="user-name">Rutuja Jadhav</span>
-                        <span class="user-role">Admin</span>
-                    </div>
-                </div>
+
                 <div class="system-status-indicator" style="margin-top: 8px;">
                     <div class="status-dot online"></div>
                     <div class="status-info">
@@ -116,7 +110,7 @@
                     <!-- PDF Ingestion Dropzone -->
                     <div class="upload-card" onclick="triggerInput('pdf-file-input')">
                         <span class="material-symbols-outlined upload-card-icon">picture_as_pdf</span>
-                        <h3 class="upload-card-title">Upload Spec PDF</h3>
+                        <h3 class="upload-card-title">Upload  PDF</h3>
                         <p class="upload-card-desc">Parse technical datasheets, CAD drawings, manuals, and extract 50 attribute triplets.</p>
                         <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;" onchange="handlePdfUpload(event)"/>
                         <button class="btn btn-secondary btn-sm">SELECT PDF</button>
@@ -147,7 +141,7 @@
                             </button>
                             <button class="btn btn-secondary btn-sm" onclick="downloadCurrentProductExcel()">
                                 <span class="material-symbols-outlined text-[16px]">download</span>
-                                2-SHEET EXCEL
+                                Product Sheet
                             </button>
                         </div>
                     </div>
@@ -169,16 +163,7 @@
                         <h1 class="view-title">Product Intelligence Dashboard</h1>
                         <p class="view-subtitle">Live intelligence for the current searched product, 2-sheet Excel exports, and historical research repository.</p>
                     </div>
-                    <div class="view-actions">
-                        <button class="btn btn-primary" onclick="downloadCurrentProductExcel()">
-                            <span class="material-symbols-outlined text-[18px]">table_view</span>
-                            DOWNLOAD 2-SHEET EXCEL (.XLSX)
-                        </button>
-                        <button class="btn btn-secondary" onclick="syncCurrentProductToSheets()">
-                            <span class="material-symbols-outlined text-[18px]">sync</span>
-                            SYNC TO GOOGLE SHEETS
-                        </button>
-                    </div>
+                    
                 </header>
 
                 <!-- Current Searched Product Hero Widget -->
@@ -218,8 +203,7 @@
                                 <span class="material-symbols-outlined">description</span>
                             </div>
                             <div class="excel-notice-body">
-                                <h4>2-Sheet Excel Export Available for this Product</h4>
-                                <p>Sheet 1: <strong>Product Details</strong> (252 commerce attributes) | Sheet 2: <strong>Search Links</strong> (all authoritative portals & datasheets).</p>
+                                <h4>Export Excel sheet ofProduct</h4>
                             </div>
                             <button class="btn btn-primary btn-sm" onclick="downloadCurrentProductExcel()">
                                 <span class="material-symbols-outlined text-[16px]">download</span>
@@ -229,7 +213,7 @@
 
                         <!-- Discovered Research Sources on Dashboard -->
                         <div class="dashboard-section" style="margin-top: 24px;">
-                            <h3 class="section-heading-sm">STEP 3 — MULTI-SOURCE DISCOVERY:</h3>
+                            <h3 class="section-heading-sm">MULTI-SOURCE DISCOVERY:</h3>
                             <div class="links-cards-grid" id="dashboard-links-grid">
                                 <!-- Populated dynamically -->
                             </div>
@@ -240,7 +224,6 @@
                             <!-- Step 4: RAG Retrieved Evidence -->
                             <div class="step-panel-card">
                                 <div class="step-panel-header">
-                                    <span class="step-badge">STEP 4 — RAG</span>
                                     <h4 class="step-panel-title">Retrieved Evidence Chunks</h4>
                                 </div>
                                 <div class="rag-evidence-box" id="dashboard-rag-evidence">
@@ -264,7 +247,6 @@
                             <!-- Step 5: AI Extraction -->
                             <div class="step-panel-card">
                                 <div class="step-panel-header">
-                                    <span class="step-badge">STEP 5 — AI EXTRACTION</span>
                                     <h4 class="step-panel-title">Technical Specs & Attributes</h4>
                                 </div>
                                 <div class="specs-pill-grid" id="dashboard-specs-grid">
@@ -278,7 +260,6 @@
                             <!-- Step 6: Multi-Source Validation -->
                             <div class="step-panel-card">
                                 <div class="step-panel-header">
-                                    <span class="step-badge">STEP 6 — VALIDATION</span>
                                     <h4 class="step-panel-title">Multi-Source Consensus</h4>
                                 </div>
                                 <div class="validation-consensus-box">
@@ -301,7 +282,6 @@
                             <!-- Step 7: Review & Conflict Resolution -->
                             <div class="step-panel-card review-conflict-card">
                                 <div class="step-panel-header">
-                                    <span class="step-badge warning">STEP 7 — REVIEW</span>
                                     <h4 class="step-panel-title">Conflict Arbitration</h4>
                                 </div>
                                 <div class="conflict-alert-box">
