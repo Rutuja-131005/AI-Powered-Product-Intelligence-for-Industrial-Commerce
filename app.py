@@ -30,6 +30,8 @@ from jobs.processor import JobProcessor
 from export.output_schema import FINAL_252_HEADERS
 from export.exporter import export_catalog_to_csv, export_catalog_to_xlsx, export_single_product_two_sheet_xlsx
 
+app = FastAPI(title="ProdIntellix — AI-Powered Product Intelligence")
+
 IS_VERCEL = os.getenv("VERCEL") == "1" or bool(os.getenv("AWS_LAMBDA_FUNCTION_NAME"))
 DATA_PATH = "/tmp/data" if IS_VERCEL else "data"
 os.makedirs(DATA_PATH, exist_ok=True)
