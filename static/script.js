@@ -23,8 +23,7 @@ function switchNavTab(tabName) {
 
     const titles = {
         input: "Product Input Hub",
-        dashboard: "Product Intelligence Dashboard",
-        chat: "Ask Product AI"
+        dashboard: "Product Intelligence Dashboard"
     };
 
     const titleEl = document.getElementById("current-section-title");
@@ -426,40 +425,6 @@ async function syncCurrentProductToSheets() {
     }
 }
 
-// ----------------- Conversational RAG -----------------
-async function sendChatQuery() {
-    const input = document.getElementById("rag-input-text");
-    const query = input.value.trim();
-    if (!query) return;
-
-    const chatBox = document.getElementById("chat-messages-box");
-    chatBox.innerHTML += `
-        <div class="chat-message user">
-            <div class="chat-avatar">U</div>
-            <div class="chat-content"><p>${escapeHtml(query)}</p></div>
-        </div>
-    `;
-    input.value = "";
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    try {
-        const res = await fetch("/query", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: query })
-        });
-        const data = await res.json();
-        chatBox.innerHTML += `
-            <div class="chat-message bot">
-                <div class="chat-avatar">AI</div>
-                <div class="chat-content"><p>${escapeHtml(data.answer || 'No answer available.')}</p></div>
-            </div>
-        `;
-        chatBox.scrollTop = chatBox.scrollHeight;
-    } catch (err) {
-        console.error("Query error:", err);
-    }
-}
 
 function escapeHtml(str) {
     return String(str || "").replace(/[&<>"']/g, function (m) {

@@ -38,10 +38,6 @@
                     <span class="nav-label">Product Dashboard</span>
                     <span class="nav-badge success-badge">LIVE</span>
                 </button>
-                <button class="nav-link" id="nav-btn-chat" onclick="switchNavTab('chat')">
-                    <span class="material-symbols-outlined nav-icon">forum</span>
-                    <span class="nav-label">Ask Product AI</span>
-                </button>
             </nav>
 
             <div class="sidebar-footer">
@@ -279,34 +275,6 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </main>
-
-            <!-- ================= VIEW 3: ASK PRODUCT AI ================= -->
-            <main class="content-view" id="view-chat">
-                <header class="view-header">
-                    <div>
-                        <h1 class="view-title">Ask Product AI</h1>
-                        <p class="view-subtitle">Ground-truth conversational RAG answering questions against researched datasheets, manuals, and catalog records.</p>
-                    </div>
-                </header>
-
-                <div class="chat-wrapper">
-                    <div class="chat-messages-container" id="chat-messages-box">
-                        <div class="chat-message bot">
-                            <div class="chat-avatar">AI</div>
-                            <div class="chat-content">
-                                <p>Hello! I am your Industrial Intelligence Assistant. Ask any question regarding researched part numbers, multi-website specs, compatibility, or catalog records.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="chat-input-bar">
-                        <input type="text" id="rag-input-text" placeholder="e.g., What are the voltage and dimension specifications for Diablo cut-off discs or Milwaukee accessories?" onkeydown="if(event.key==='Enter') sendChatQuery()"/>
-                        <button class="btn btn-primary" onclick="sendChatQuery()">
-                            <span class="material-symbols-outlined">send</span>
-                        </button>
                     </div>
                 </div>
             </main>
