@@ -1,4 +1,4 @@
-# 🌐 ProdIntellix + Razorpay AI Platform
+# 🌐 ProdIntellix 
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688.svg)](https://fastapi.tiangolo.com/)
