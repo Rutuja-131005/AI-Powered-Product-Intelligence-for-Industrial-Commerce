@@ -16,19 +16,34 @@ except ImportError as e:
     st.error(f"Error importing modules: {e}")
     st.stop()
 
+favicon_path = "static/favicon.png" if os.path.exists("static/favicon.png") else "⚡"
+
 st.set_page_config(
-    page_title="AI Product Intelligence & Document RAG Platform",
-    page_icon="⚡",
+    page_title="ProdIntellix — Product & Payment Intelligence Platform",
+    page_icon=favicon_path,
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 pipeline = get_pipeline_instance()
 
-# Mode Navigation in Sidebar
-st.sidebar.title("⚡ CATALOG IQ")
-st.sidebar.caption("AI Industrial Commerce Intelligence")
-mode = st.sidebar.radio("Select Application Mode", ["⚙️ AI Product Intelligence Studio", "📚 Document RAG Assistant"])
+# Custom Sidebar Branding
+st.sidebar.title("🌐 ProdIntellix")
+st.sidebar.caption("AI Product & Payment Intelligence Platform")
+
+mode = st.sidebar.radio(
+    "Select Application Mode",
+    [
+        "⚙️ AI Product Intelligence Studio",
+        "📷 Photo & PDF Multimodal Inspector",
+        "💳 Razorpay Fintech & Risk Hub",
+        "🧾 RazorpayX B2B Reconciler",
+        "📚 Document RAG Assistant"
+    ]
+)
+
+
+
 
 if mode == "⚙️ AI Product Intelligence Studio":
     st.title("⚙️ AI-Powered Product Intelligence Studio")
@@ -187,8 +202,189 @@ if mode == "⚙️ AI Product Intelligence Studio":
                     "Part_Manuf": p.get("Part_Manuf", "")
                 })
 
+elif mode == "📷 Photo & PDF Multimodal Inspector":
+    st.title("📷 Photo & PDF Multimodal Product Inspector")
+    st.markdown("Upload a **product photo (nameplate, label, package)** or a **technical PDF (manual, datasheet)** to automatically analyze specs and retrieve **live accessible research links**.")
+
+    from product_intelligence.multimodal_analyzer import MultimodalProductAnalyzer
+
+    col_up, col_sample = st.columns([2, 1])
+
+    with col_up:
+        uploaded_media = st.file_uploader("Upload Product Photo or Technical PDF", type=["png", "jpg", "jpeg", "pdf"])
+
+    with col_sample:
+        st.markdown("#### Sample Media Fixture")
+        if st.button("🚀 Run Sample Nameplate Photo Analysis"):
+            filename = "Allen_Bradley_140U_J0D3_C40_Nameplate.jpg"
+            file_bytes = b"Sample Nameplate Image 140U-J0D3-C40 Allen-Bradley"
+            res = MultimodalProductAnalyzer.analyze_and_research(filename, file_bytes)
+            st.session_state["multimodal_result"] = res
+            st.success("Sample Photo Analyzed Successfully!")
+
+    if uploaded_media is not None:
+        if st.button("⚡ Analyze Media & Discover Accessible Links", type="primary"):
+            with st.spinner("Analyzing image/PDF text, extracting Part Number & Brand, and running multi-website research..."):
+                file_bytes = uploaded_media.read()
+                res = MultimodalProductAnalyzer.analyze_and_research(uploaded_media.name, file_bytes)
+                st.session_state["multimodal_result"] = res
+                st.success("Analysis Complete!")
+
+    if "multimodal_result" in st.session_state:
+        res = st.session_state["multimodal_result"]
+        st.markdown("---")
+        st.subheader(f"🔍 Product Identity Detected: {res['brand']} {res['mpn']}")
+
+        mcol1, mcol2, mcol3 = st.columns(3)
+        mcol1.metric("Manufacturer Part #", res["mpn"])
+        mcol2.metric("Detected Brand", res["brand"])
+        mcol3.metric("Product Trust Score", f"{res['trust_score']} / 100")
+
+        st.markdown("### 🌐 Discovered Accessible Live Research Links")
+        links = res.get("accessible_links", [])
+        if links:
+            for l in links:
+                st.markdown(f"• **[{l['label']}]({l['url']})** — `{l['category']}` ({l['status']})")
+
+        st.markdown("---")
+        st.subheader("📋 Razorpay Fintech Metadata")
+        fcol1, fcol2 = st.columns(2)
+        fcol1.metric("Predicted HSN Code", res["fintech_hsn"])
+        fcol2.metric("GST Tax Slab", f"{res['fintech_gst']}%")
+
+elif mode == "💳 Razorpay Fintech & Risk Hub":
+
+    st.title("💳 Razorpay Magic Checkout & Merchant Risk Hub")
+    st.markdown("Enrich merchant catalog data with **HSN/GST compliance**, **Shipping Specs**, **Product Authenticity Risk Scores**, and **Razorpay Orders**.")
+
+
+    from services.razorpay_service import RazorpayService
+    from product_intelligence.risk_scoring import MerchantRiskScorer
+    from product_intelligence.fintech_enricher import FintechEnricher
+
+    razorpay_svc = RazorpayService()
+    risk_scorer = MerchantRiskScorer()
+    fintech_enricher = FintechEnricher()
+
+    col1, col2 = st.columns([1, 1])
+
+    with col1:
+        st.subheader("🔍 Single Product Risk & Tax Inspector")
+        product_title = st.text_input("Product Description", "Diablo 1/2 in. x 18 in. Sanding Belt 6pc (8536 Breaker)")
+        part_number = st.text_input("Manufacturer Part Number (MPN)", "DCB518ASTS06G")
+        price_inr = st.number_input("Catalog Listing Price (INR)", value=1499.0, step=100.0)
+        brand_input = st.text_input("Merchant Claimed Brand", "Freud / Diablo")
+
+        if st.button("🚀 Evaluate Product Risk & Tax Slabs", type="primary"):
+            fintech_data = fintech_enricher.enrich_fintech_metadata({
+                "Part_Desc": product_title,
+                "Mfg_Part_Num": part_number
+            })
+            risk_report = risk_scorer.evaluate_merchant_product_risk({
+                "Part_Desc": product_title,
+                "Mfg_Part_Num": part_number,
+                "claimed_price": price_inr,
+                "E1_Brand": brand_input
+            })
+
+            st.session_state["evaluated_product"] = {
+                "title": product_title,
+                "part_number": part_number,
+                "price": price_inr,
+                "fintech": fintech_data,
+                "risk": risk_report
+            }
+
+    with col2:
+        st.subheader("📊 Merchant Risk & Authenticity Score")
+        if "evaluated_product" in st.session_state:
+            ep = st.session_state["evaluated_product"]
+            risk = ep["risk"]
+            fintech = ep["fintech"]
+
+            score = risk["product_trust_score"]
+            if score >= 85:
+                st.success(f"🟢 Product Trust Score: **{score} / 100** ({risk['risk_level']})")
+            elif score >= 65:
+                st.warning(f"🟡 Product Trust Score: **{score} / 100** ({risk['risk_level']})")
+            else:
+                st.error(f"🔴 Product Trust Score: **{score} / 100** ({risk['risk_level']})")
+
+            st.write(f"**Action Recommendation:** {risk['action_recommendation']}")
+            if risk.get("risk_flags"):
+                st.markdown("**Risk Indicators Flagged:**")
+                for f in risk["risk_flags"]:
+                    st.write(f"• `{f}`")
+
+            st.markdown("---")
+            st.subheader("📋 Razorpay Magic Checkout Metadata")
+            mcol1, mcol2 = st.columns(2)
+            mcol1.metric("Predicted HSN Code", fintech["hsn_sac_code"])
+            mcol2.metric("GST Tax Slab", f"{fintech['gst_rate_pct']}%")
+
+            scol1, scol2 = st.columns(2)
+            scol1.metric("Est. Net Weight", f"{fintech['net_weight_kg']} kg")
+            scol2.metric("Freight Class", fintech["freight_class"])
+
+            st.markdown("---")
+            st.subheader("💳 Instant Razorpay Payment Gateway Modal")
+            if st.button("⚡ Generate Razorpay Order & Payment Link"):
+                order = razorpay_svc.create_order(
+                    product_title=ep["title"],
+                    unit_price=ep["price"],
+                    hsn_code=fintech["hsn_sac_code"],
+                    gst_rate=fintech["gst_rate_pct"],
+                    part_number=ep["part_number"]
+                )
+                plink = razorpay_svc.create_payment_link(
+                    product_title=ep["title"],
+                    total_amount=order["calculated_breakdown"]["total_amount"]
+                )
+
+                st.success(f"✅ Razorpay Order Created! Order ID: `{order['id']}`")
+                st.json(order["calculated_breakdown"])
+                st.markdown(f"👉 **[Click to Pay via Razorpay Checkout Link]({plink['short_url']})**")
+
+elif mode == "🧾 RazorpayX B2B Reconciler":
+    st.title("🧾 RazorpayX B2B Invoice & PO Reconciliation Engine")
+
+    st.markdown("Automated RAG-powered line-item matching between supplier invoices and catalog part numbers for **RazorpayX Vendor Payouts**.")
+
+    from services.reconciliation import InvoiceReconciliationEngine
+    reconciler = InvoiceReconciliationEngine()
+
+    uploaded_inv = st.file_uploader("Upload B2B Invoice or Purchase Order (PDF / TXT)", type=["txt", "pdf", "csv"])
+    sample_text = st.text_area(
+        "Or paste Invoice Text directly:",
+        value="""INVOICE #INV-2026-9081
+Vendor: Jam Industrial Supply LLC
+Line 1: 3MABR-7100075678 - 3M 775L Stikit Film P150 Cubitron II  Qty: 10  Amount: ₹14,990.00
+Line 2: DCB518ASTS06G - Diablo 1/2 in x 18 in Sanding Belt 6pc Qty: 5   Amount: ₹7,495.00
+Line 3: 140U-J0D3-C40 - Allen Bradley Circuit Breaker 40A     Qty: 2   Amount: ₹12,500.00
+TOTAL PAYABLE: ₹34,985.00""",
+        height=150
+    )
+
+    if st.button("🚀 Run RAG Line-Item Reconciliation", type="primary"):
+        with st.spinner("Parsing invoice line items and verifying against catalog vector store..."):
+            report = reconciler.reconcile_invoice(sample_text)
+            
+            st.success(f"✅ Reconciliation Status: **{report['reconciliation_status']}**")
+            
+            kcol1, kcol2, kcol3 = st.columns(3)
+            kcol1.metric("Processed Line Items", report["total_items_processed"])
+            kcol2.metric("Discrepancies Found", report["total_discrepancies"])
+            kcol3.metric("Total Approved Payout", f"₹{report['total_payout_inr']:,.2f}")
+
+            st.markdown("### 📋 Reconciled Line Items Audit")
+            st.dataframe(pd.DataFrame(report["reconciled_line_items"]), use_container_width=True)
+
+            st.markdown("### 🚀 Generated RazorpayX Vendor Payout API Payload")
+            st.json(report["razorpayx_payout_payload"])
+
 else:
     st.title("📚 Document RAG Assistant")
+
     st.markdown("Ask technical questions grounded in uploaded specification documents and manuals.")
     
     with st.sidebar:

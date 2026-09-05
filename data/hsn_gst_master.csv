@@ -1,0 +1,15 @@
+HSN_Code,Category_Description,Default_GST_Rate,UNSPSC_Taxonomy,Volumetric_Risk,Dangerous_Goods
+8467,Abrasives & Sanding Belts / Power Tools,18.0,31191500,Low,False
+8501,Electric Motors & Generators,18.0,39121000,Medium,False
+8536,Circuit Breakers & Electrical Switches,18.0,39121601,Low,False
+8537,PLCs & Automation Controllers,18.0,32151705,Low,False
+8504,Variable Frequency Drives & Inverters,18.0,39122001,Medium,False
+9026,Pressure Transmitters & Flow Meters,18.0,41112410,Low,False
+9031,Sensors & Measuring Instruments,18.0,41112212,Low,False
+3926,Plastic Enclosures & Components,18.0,39121324,Low,False
+8511,Relays & Electrical Contactors,18.0,39121529,Low,False
+3403,Industrial Lubricants & Greases,18.0,15121500,Medium,True
+2804,Industrial Gases & Compressed Cylinders,28.0,12141900,High,True
+8481,Industrial Valves & Taps,18.0,40141600,Medium,False
+8483,Bearings & Power Transmission,18.0,31171500,Medium,False
+7318,Fasteners Screws Bolts & Nuts,18.0,31161500,Low,False

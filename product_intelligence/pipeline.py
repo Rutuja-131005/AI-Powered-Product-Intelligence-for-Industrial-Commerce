@@ -19,6 +19,9 @@ from .retriever import retrieve_rag_evidence, discover_authoritative_sources
 from .extractor import extract_product_attributes
 from .generator import generate_commerce_copy
 from .validator import validate_and_score_product
+from .fintech_enricher import FintechEnricher
+from .risk_scoring import MerchantRiskScorer
+
 
 class ProductIntelligencePipeline:
     """
@@ -26,7 +29,10 @@ class ProductIntelligencePipeline:
     """
     def __init__(self):
         self.jobs: Dict[str, Dict[str, Any]] = {}
+        self.fintech_enricher = FintechEnricher()
+        self.risk_scorer = MerchantRiskScorer()
         self.load_default_dataset()
+
 
     def load_default_dataset(self, file_path: str = "dataset.csv"):
         """Loads dataset.csv on initialization using csv.DictReader."""
@@ -163,6 +169,18 @@ class ProductIntelligencePipeline:
         from export.mapper import map_record_to_252_columns
         final_record = map_record_to_252_columns(merged_payload, row)
 
+        # 7. Fintech & Razorpay Risk Scoring Layer
+        fintech_meta = self.fintech_enricher.enrich_fintech_metadata({
+            "Part_Desc": part_desc,
+            "Mfg_Part_Num": canonical_pn,
+            "extracted_attributes": specs
+        })
+        risk_meta = self.risk_scorer.evaluate_merchant_product_risk(
+            merchant_claim={"Part_Desc": part_desc, "Mfg_Part_Num": canonical_pn, "E1_Brand": resolved_brand},
+            retrieved_evidence=rag_evidence,
+            rag_confidence_score=float(quality_metadata.get("Overall_Confidence_Score", 0.85))
+        )
+
         # Attach helper metadata for frontend inspection
         final_record["_row_idx"] = row_idx
         final_record["_rag_evidence"] = rag_evidence
@@ -171,8 +189,19 @@ class ProductIntelligencePipeline:
         final_record["Validation_Status"] = quality_metadata.get("Validation_Status", "VERIFIED")
         final_record["Overall_Confidence_Score"] = quality_metadata.get("Overall_Confidence_Score", "0.95")
         final_record["Review_Status"] = "PENDING" if final_record["Validation_Status"] == "VERIFIED" else "NEEDS_REVIEW"
+        
+        # Razorpay Fintech & Risk Payload
+        final_record["HSN_Code"] = fintech_meta["hsn_sac_code"]
+        final_record["GST_Rate_Pct"] = fintech_meta["gst_rate_pct"]
+        final_record["Net_Weight_Kg"] = fintech_meta["net_weight_kg"]
+        final_record["Freight_Class"] = fintech_meta["freight_class"]
+        final_record["Merchant_Trust_Score"] = risk_meta["product_trust_score"]
+        final_record["Risk_Level"] = risk_meta["risk_level"]
+        final_record["_fintech_metadata"] = fintech_meta
+        final_record["_risk_metadata"] = risk_meta
 
         return final_record
+
 
     def create_job(self, df: pd.DataFrame, filename: str = "upload.csv") -> str:
         """Initializes a new background enrichment job."""

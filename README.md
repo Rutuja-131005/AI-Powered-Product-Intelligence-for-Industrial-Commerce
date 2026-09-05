@@ -1,38 +1,24 @@
-# ProdIntellix: AI-Powered Industrial Product Intelligence Platform
+# 🌐 ProdIntellix + Razorpay AI Platform
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688.svg)](https://fastapi.tiangolo.com/)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-orange.svg)](https://www.trychroma.com/)
+[![Razorpay AI](https://img.shields.io/badge/Razorpay-Fintech_Enrichment-blueviolet.svg)](https://razorpay.com/)
 [![Schema Compliance](https://img.shields.io/badge/Contract-252_Columns-brightgreen.svg)]()
-[![Dataset](https://img.shields.io/badge/Dataset-241_Products_Loaded-success.svg)]()
----
 
-# 🌐 ProdIntellix
-
-> **AI-Powered Product Intelligence, Multi-Source Verification & 252-Column Enrichment Engine for Industrial Commerce.**
-
-ProdIntellix transforms sparse and incomplete industrial product information into **enriched, validated, traceable, and commerce-ready product intelligence** using multi-source research, hybrid RAG, AI extraction, cross-source validation, and automated catalog generation.
+> **AI-Powered Product & Payment Intelligence Platform tailored for Razorpay’s Ecosystem (Magic Checkout, RazorpayX B2B Invoicing, Merchant Risk Scoring & Checkout APIs).**
 
 ---
 
-## 🚀 Overview
+## 🚀 Overview & Razorpay Fintech Capabilities
 
-Industrial product information is often scattered across manufacturer websites, distributor portals, technical PDFs, manuals, catalogs, and product images.
+**ProdIntellix + Razorpay AI** transforms sparse e-commerce & industrial catalogs into **compliance-ready product intelligence and frictionless payment workflows**:
 
-**ProdIntellix** brings these sources together and converts minimal product information into structured product intelligence.
+* **💳 Razorpay Magic Checkout Catalog AI**: Auto-extracts 6/8-digit HSN/SAC codes, predicts GST tax slabs (0/5/12/18/28%), and calculates net package weight & freight classes.
+* **📊 Merchant & Product Risk Verification Score**: Compares merchant catalog claims against ChromaDB vector datasheets to compute a Product Trust Score (0-100) and flag pricing/counterfeit anomalies.
+* **🧾 RazorpayX B2B Invoice & PO Reconciliation**: RAG-powered line-item matching between supplier invoices and canonical catalog part numbers to auto-generate RazorpayX Vendor Payout payloads.
+* **⚡ Native Razorpay Payment Gateway**: Embedded Razorpay Order & Payment Link creation directly inside catalog inspection workflows.
 
-Given a **part number, product description, brand, manufacturer, image/nameplate, PDF, or catalog**, the platform can:
-
-* Identify the canonical product and brand
-* Discover authoritative product sources
-* Retrieve relevant technical evidence using RAG
-* Extract and normalize technical specifications
-* Cross-validate information across multiple sources
-* Detect specification conflicts
-* Generate commerce-ready descriptions and features
-* Produce the required **252-column product output**
-* Export the final catalog as Excel/CSV
-* Synchronize product information with Google Sheets
 
 ---
 

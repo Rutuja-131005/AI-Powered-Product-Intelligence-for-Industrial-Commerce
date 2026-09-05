@@ -45,3 +45,10 @@ CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "86400"))
 # Confidence Thresholds
 CONFIDENCE_HIGH_THRESHOLD = 0.85
 CONFIDENCE_MEDIUM_THRESHOLD = 0.70
+
+# Razorpay Payment & Risk Configuration
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "rzp_test_mock_key_prodintellix")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "mock_secret_prodintellix")
+RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET", "mock_webhook_secret")
+HSN_GST_MASTER_PATH = DATA_DIR / "hsn_gst_master.csv"
+

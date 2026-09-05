@@ -87,15 +87,16 @@ class ProductResearchService:
 
         # Extract initial valid links to evaluate coverage
         raw_links = [
-            {"label": "Official Manufacturer Product Portal", "url": sources.get("MFR URL"), "category": "MFR Portal"},
-            {"label": "Industrial Distributor Reference 1", "url": sources.get("Ref URL 1"), "category": "Distributor"},
-            {"label": "Industrial Distributor Reference 2", "url": sources.get("Ref URL 2"), "category": "Distributor"},
-            {"label": "Catalog Reference Portal", "url": sources.get("Ref URL 3"), "category": "Catalog"},
-            {"label": "Technical Specification Datasheet", "url": sources.get("Specification Sheet"), "category": "Datasheet PDF"},
-            {"label": "User Installation & Safety Manual", "url": sources.get("Instruction/Installation Manual"), "category": "Manual"},
-            {"label": "3D CAD / Line Drawing Reference", "url": sources.get("Line Drawing"), "category": "CAD Model"},
-            {"label": "Safety Data Sheet (SDS/MSDS)", "url": sources.get("SDS"), "category": "Compliance"}
+            {"label": "Official Manufacturer Product Portal", "url": sources.get("Manufacturer_Product_URL") or sources.get("MFR URL"), "category": "MFR Portal"},
+            {"label": "Industrial Distributor Reference 1 (Grainger)", "url": sources.get("Distributor_URL_1") or sources.get("Ref URL 1"), "category": "Distributor"},
+            {"label": "Industrial Distributor Reference 2 (Radwell)", "url": sources.get("Distributor_URL_2") or sources.get("Ref URL 2"), "category": "Distributor"},
+            {"label": "Catalog Reference Portal (GlobalSpec)", "url": sources.get("Reference_Source_URL") or sources.get("Ref URL 3"), "category": "Catalog"},
+            {"label": "Technical Specification Datasheet", "url": sources.get("Spec_Sheet_URL") or sources.get("Specification Sheet"), "category": "Datasheet PDF"},
+            {"label": "User Installation & Safety Manual", "url": sources.get("User_Manual_URL") or sources.get("Instruction/Installation Manual"), "category": "Manual"},
+            {"label": "3D CAD / Line Drawing Reference", "url": sources.get("CAD_Drawing_URL") or sources.get("Line Drawing"), "category": "CAD Model"},
+            {"label": "Safety Data Sheet (SDS/MSDS)", "url": sources.get("SDS_MSDS_URL") or sources.get("SDS"), "category": "Compliance"}
         ]
+
         valid_links = [lnk for lnk in raw_links if lnk.get("url")]
 
         # 4. Dynamically Compute Calibrated Confidence Score & Tier
