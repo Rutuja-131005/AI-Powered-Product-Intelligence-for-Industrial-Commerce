@@ -4,9 +4,12 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688.svg)](https://fastapi.tiangolo.com/)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-orange.svg)](https://www.trychroma.com/)
 [![Razorpay AI](https://img.shields.io/badge/Razorpay-Fintech_Enrichment-blueviolet.svg)](https://razorpay.com/)
+[![Live Prototype](https://img.shields.io/badge/Live_Prototype-Streamlit_Cloud-FF4B4B.svg?logo=streamlit)](https://rutuja-131005-ai-powered-product-intellige-streamlit-app-frrf40.streamlit.app/)
 [![Schema Compliance](https://img.shields.io/badge/Contract-252_Columns-brightgreen.svg)]()
 
 > **AI-Powered Product & Payment Intelligence Platform tailored for Razorpay’s Ecosystem (Magic Checkout, RazorpayX B2B Invoicing, Merchant Risk Scoring & Checkout APIs).**
+
+👉 🌐 **Live Web Prototype**: [**https://rutuja-131005-ai-powered-product-intellige-streamlit-app-frrf40.streamlit.app/**](https://rutuja-131005-ai-powered-product-intellige-streamlit-app-frrf40.streamlit.app/)
 
 ---
 
@@ -18,6 +21,7 @@
 * **📊 Merchant & Product Risk Verification Score**: Compares merchant catalog claims against ChromaDB vector datasheets to compute a Product Trust Score (0-100) and flag pricing/counterfeit anomalies.
 * **🧾 RazorpayX B2B Invoice & PO Reconciliation**: RAG-powered line-item matching between supplier invoices and canonical catalog part numbers to auto-generate RazorpayX Vendor Payout payloads.
 * **⚡ Native Razorpay Payment Gateway**: Embedded Razorpay Order & Payment Link creation directly inside catalog inspection workflows.
+
 
 
 ---
